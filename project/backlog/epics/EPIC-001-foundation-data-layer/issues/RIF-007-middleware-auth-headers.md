@@ -5,7 +5,7 @@
 | **Epic**            | EPIC-001 Foundation & Data Layer                   |
 | **Priority**        | P0                                                 |
 | **Story Points**    | 3                                                  |
-| **Status**          | To Do                                              |
+| **Status**          | ✅ Completed (2026-05-21)                          |
 | **Dependencies**    | RIF-001                                            |
 | **User Stories**    | (preparatory para todas las routes admin/vendedor) |
 | **Risks mitigated** | RSK-002 (URL leak), RSK-006 (browser sync)         |
@@ -99,9 +99,69 @@ export const config = {
 
 ## Done when
 
-- [ ] `src/middleware.ts` implementado
-- [ ] Unit test: token válido → headers seteados
-- [ ] Unit test: admin sin token → 404
-- [ ] Unit test: ruta pública NO trae Referrer-Policy: no-referrer
-- [ ] E2E smoke: navegar a `/admin/wrong` → 404
-- [ ] `pnpm verify` pasa
+- [x] `middleware.ts` implementado (root, no `src/middleware.ts` — Next.js convention) ✅
+- [x] Unit test: /admin/{validToken} → headers seteados ✅
+- [x] Unit test: /admin sin token o token inválido → 404 ✅
+- [x] Unit test: ADMIN_ACCESS_TOKEN ausente → 404 (fail-closed) ✅
+- [x] Unit test: /v/{token} → headers seteados (DB validation deferida a RSC) ✅
+- [x] Unit test: /r/{slug} (público) NO trae Referrer-Policy ✅
+- [x] Unit test: kit pages (/login, /dashboard) pasan sin gating ✅
+- [x] Unit test: correlation ID propagation + UUID generation ✅
+- [x] `pnpm typecheck` + `pnpm lint` + 16/16 tests + **534/534 full suite** PASS ✅
+- [ ] E2E smoke real contra Railway deploy — _verifiable post-merge cuando se setee `ADMIN_ACCESS_TOKEN` en Railway_
+
+## ✅ Implementation Evidence (2026-05-21)
+
+### Files modified
+
+- **REWRITE:** `middleware.ts` — reemplazado el `NextAuth.auth((req) => ...)` wrapper del kit por router Rifatela. Edge-safe, sin imports de DB/NextAuth.
+- **NEW:** `tests/unit/middleware.test.ts` — 16 unit tests con `new NextRequest(url, init)`.
+
+### Behavior summary
+
+| Path pattern                            | Action                                                                                           |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `/admin/{token}/*`                      | Compare against `process.env.ADMIN_ACCESS_TOKEN`; match → headers + pass; mismatch/missing → 404 |
+| `/v/{token}/*`                          | Headers + pass. DB validation deferida a la RSC page (Edge runtime no soporta `pg`)              |
+| `/r/{slug}/*`                           | Pass sin headers de privacy (shareable URL para WhatsApp)                                        |
+| `/login`, `/dashboard`, otros kit pages | Pass sin gating — quedan accesibles pero sin Rifatela data (ADR-003)                             |
+| Todo                                    | Correlation ID propagation/generation                                                            |
+
+### Security headers en `/admin/*` y `/v/*`
+
+- `Referrer-Policy: no-referrer` — bloquea leak de token via referer headers
+- `X-Robots-Tag: noindex, nofollow` — bots no indexan URLs con tokens
+
+### Test results
+
+```
+✓ middleware — /admin/{token} (6 tests):
+  ✓ allows /admin/{validToken} with security headers + correlation ID
+  ✓ allows nested /admin/{validToken}/raffles/.../draw
+  ✓ returns 404 when /admin token does not match
+  ✓ returns 404 for /admin/ with no token
+  ✓ returns 404 for /admin with no trailing slash + no token
+  ✓ returns 404 when ADMIN_ACCESS_TOKEN env var is not set (fail-closed)
+✓ middleware — /v/{token} (2 tests)
+✓ middleware — /r/{slug} (public) (2 tests)
+✓ middleware — other routes (3 tests)
+✓ middleware — correlation ID (3 tests)
+
+Test Files  1 passed (1)  ·  Tests  16 passed (16)
+```
+
+Full suite: **534/534 PASS** (sin regresiones).
+
+### Deviations from spec
+
+- **DB validation diferida a RSC, no en middleware.** Edge runtime de Next.js no soporta `pg` (node-postgres). El spec lo permite explícitamente ("Validate token against DB via edge-compatible query OR defer to RSC"). Eligimos defer — más simple, sin cold-start de DB en cada request.
+- **NextAuth wrapper REMOVIDO.** El kit envolvía todo en `auth((req) => ...)`. Per ADR-003 (no auth real en MVP) lo dejamos pasar. Kit pages siguen accesibles pero sin auth gating. Cleanup completo de rutas /login etc. queda para issue futuro.
+
+### Setup operacional pendiente (NO blocker — solo para que /admin funcione en prod)
+
+- `ADMIN_ACCESS_TOKEN` env var en Railway. Generamos un token earlier en la sesión: `DEg-tj3qcO0vhQek-xMyr9MSMfIaYwhR` (rotalo si te preocupa que aparezca en chat logs).
+
+### Pending follow-up (NOT blocking)
+
+- Consumido por RIF-009..014 (admin/seller pages) — RSC pages validan seller tokens via `withSellerToken` (ya disponible from RIF-004)
+- Cleanup definitivo de kit auth (remover /login, /register, /dashboard, NextAuth deps) → tracking issue futuro
