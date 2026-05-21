@@ -126,6 +126,127 @@
   --badge-pink-dot: #ec4899;
 }
 
+/* Theme: Carnaval (Rifatela festivo — see project/planning/15_DESIGN.md §0.3) */
+.carnaval {
+  /* Base — crema cálido (foundation) */
+  --background: #fff8e7;
+  --foreground: #1a0f2e;
+
+  /* Cards & Surfaces — blanco puro (eleva sobre el crema) */
+  --card: #ffffff;
+  --card-foreground: #1a0f2e;
+  --card-border: #e5d9c0;
+
+  /* Sidebar — crema más oscuro (separación visual sutil) */
+  --sidebar-bg: #fff1d4;
+  --sidebar-foreground: #5c4d6e;
+  --sidebar-active: #d7263d;
+  --sidebar-active-foreground: #ffffff;
+  --sidebar-border: transparent;
+
+  /* Header */
+  --header-bg: #fff8e7;
+  --header-foreground: #1a0f2e;
+  --header-border: #e5d9c0;
+
+  /* Primary — rojo carpa de circo */
+  --primary: #d7263d;
+  --primary-foreground: #ffffff;
+  --primary-hover: #b81e33;
+
+  /* Secondary — azul cobalto (info / vendedor badges) */
+  --secondary: #1e5bff;
+  --secondary-foreground: #ffffff;
+  --secondary-hover: #1849cc;
+
+  /* Muted — variantes del crema */
+  --muted: #fff1d4;
+  --muted-foreground: #5c4d6e;
+
+  /* Accent — amarillo dorado (premio / ganador / luces de feria) */
+  --accent: #f4b400;
+  --accent-foreground: #1a0f2e;
+
+  /* Inputs */
+  --input-bg: #ffffff;
+  --input-border: #e5d9c0;
+  --input-focus: #d7263d;
+
+  /* Tables */
+  --table-header-bg: #fff1d4;
+  --table-header-foreground: #5c4d6e;
+  --table-row-bg: #ffffff;
+  --table-row-hover: #fff8e7;
+  --table-border: #e5d9c0;
+
+  /* Status Colors */
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  --error: #b91c1c;
+  --error-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #1a0f2e;
+  --info: #1e5bff;
+  --info-foreground: #ffffff;
+
+  /* ─── Carnaval Shadow Tokens (design spec §0.6) ─── */
+  --shadow-sm: 0 1px 2px rgba(26, 15, 46, 0.08);
+  --shadow-md: 0 4px 12px rgba(26, 15, 46, 0.12);
+  --shadow-lg: 0 16px 40px rgba(26, 15, 46, 0.18);
+  /* Festive: drop-shadow tipo neón feria — para hero CTAs */
+  --shadow-festive: 0 6px 0 #d7263d, 0 12px 24px rgba(215, 38, 61, 0.25);
+
+  /* Neumorphic tokens stubbed to flat values (kit components may reference
+     these; we use flat shadows in carnaval — neumo doesn't fit the vibe) */
+  --neo-light: rgba(255, 255, 255, 0.7);
+  --neo-dark: rgba(26, 15, 46, 0.08);
+  --neo-outset: var(--shadow-md);
+  --neo-outset-sm: var(--shadow-sm);
+  --neo-outset-lg: var(--shadow-lg);
+  --neo-outset-hover: var(--shadow-md);
+  --neo-float: var(--shadow-lg);
+  --neo-inset: inset 0 2px 4px rgba(26, 15, 46, 0.06);
+  --neo-inset-sm: inset 0 1px 2px rgba(26, 15, 46, 0.04);
+  --neo-pressed: inset 0 3px 6px rgba(26, 15, 46, 0.1);
+  --neo-flat: none;
+
+  /* shadcn/ui compatibility tokens */
+  --border: #e5d9c0;
+  --ring: #d7263d;
+  --radius: 0.625rem; /* 10px — design spec §0.6 --radius-md */
+  --popover: #ffffff;
+  --popover-foreground: #1a0f2e;
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+
+  /* Showcase Banner */
+  --showcase-banner-bg: rgba(244, 180, 0, 0.2);
+  --showcase-banner-text: #1a0f2e;
+
+  /* ─── Badge Color Tokens (carnaval-tuned) ─── */
+  --badge-purple-bg: rgba(147, 51, 234, 0.15);
+  --badge-purple-text: #6b21a8;
+  --badge-purple-dot: #9333ea;
+  --badge-blue-bg: rgba(30, 91, 255, 0.15);
+  --badge-blue-text: #1e3a8a;
+  --badge-blue-dot: #1e5bff;
+  --badge-slate-bg: rgba(92, 77, 110, 0.15);
+  --badge-slate-text: #5c4d6e;
+  --badge-slate-dot: #9b8fab;
+  --badge-emerald-bg: rgba(22, 163, 74, 0.15);
+  --badge-emerald-text: #065f46;
+  --badge-emerald-dot: #16a34a;
+  --badge-red-bg: rgba(215, 38, 61, 0.15);
+  --badge-red-text: #991b1b;
+  --badge-red-dot: #d7263d;
+  --badge-amber-bg: rgba(244, 180, 0, 0.2);
+  --badge-amber-text: #92400e;
+  --badge-amber-dot: #f4b400;
+  --badge-pink-bg: rgba(236, 72, 153, 0.15);
+  --badge-pink-text: #9d174d;
+  --badge-pink-dot: #ec4899;
+}
+
 /* Theme: Midnight (Deep Blue) */
 .midnight {
   --background: #1a2332;
@@ -391,7 +512,12 @@
   --color-badge-pink-dot: var(--badge-pink-dot);
 
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-jetbrains-mono, var(--font-geist-mono));
+  /* Carnaval display font (Bungee) — used for hero/title typography per design §0.4 */
+  --font-display: var(--font-bungee, var(--font-geist-sans));
+
+  /* Carnaval shadow tokens exposed as Tailwind utilities (shadow-festive, etc.) */
+  --shadow-festive: var(--shadow-festive);
 }
 
 /* ===== BASE STYLES ===== */

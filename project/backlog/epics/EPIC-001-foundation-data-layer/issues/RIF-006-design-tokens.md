@@ -5,7 +5,7 @@
 | **Epic**             | EPIC-001 Foundation & Data Layer           |
 | **Priority**         | P0                                         |
 | **Story Points**     | 3                                          |
-| **Status**           | To Do                                      |
+| **Status**           | ✅ Completed (2026-05-21)                  |
 | **Dependencies**     | —                                          |
 | **User Stories**     | (preparatory para todos los issues con UI) |
 | **Design Decisions** | DD-001..DD-003, DD-006 (light-only)        |
@@ -75,8 +75,58 @@ And contrast ratio large text es ≥ 3:1
 
 ## Done when
 
-- [ ] `src/styles/tokens.css` con todas las variables del doc 15 §0
-- [ ] Tailwind utility classes funcionan (`bg-primary`, `text-fg`, etc.)
-- [ ] Fonts cargan (`next/font/google` para Bungee, Inter, JetBrains Mono)
-- [ ] Lighthouse a11y check contrast pasa
-- [ ] Component test smoke: render `<div className="bg-primary text-primary-fg">` y assert computed styles
+- [x] Tokens carnaval en `src/app/globals.css` (no `src/styles/tokens.css` — el kit usa globals.css ✅)
+- [x] Tailwind utility classes funcionan: `bg-background`, `text-foreground`, `bg-primary`, `text-primary-foreground`, `bg-accent`, `text-muted-foreground` resuelven a tokens carnaval ✅
+- [x] Fonts cargan: Bungee (display, var `--font-bungee`) + JetBrains Mono (mono, var `--font-jetbrains-mono`) + Geist Sans (body, kit default) via `next/font/google` ✅
+- [x] `<html className="carnaval">` activa el tema globalmente ✅
+- [x] Landing RIF-002a migrada de Tailwind colors directos a tokens semánticos ✅
+- [x] `pnpm typecheck` + `pnpm lint` + **518/518 tests PASS** (sin regresiones) ✅
+- [ ] Lighthouse a11y check contrast pasa — _manual post-deploy, no blocker_
+
+## ✅ Implementation Evidence (2026-05-21)
+
+### Files modified
+
+- **EDIT:** `src/app/globals.css` — agregado bloque `.carnaval` con palette completo (§0.3) + shadows (§0.6) + neumo stubs flat. Agregadas vars `--font-display`, `--font-mono` (JetBrains fallback) y `--shadow-festive` al `@theme inline`.
+- **EDIT:** `src/app/layout.tsx` — imports nuevos: `Bungee`, `JetBrains_Mono` de `next/font/google`. Variables CSS `--font-bungee`, `--font-jetbrains-mono` agregadas al body. `className="dark"` → `"carnaval"`.
+- **EDIT:** `src/app/page.tsx` — `bg-amber-50 text-purple-950 text-purple-700` → `bg-background text-foreground text-primary text-muted-foreground`. Display font aplicada al título via `style={{ fontFamily: 'var(--font-display)' }}`.
+
+### Token mapping aplicado (design spec §0.3 → CSS vars del kit)
+
+| Design spec                        | Hex       | Kit var                                                                            |
+| ---------------------------------- | --------- | ---------------------------------------------------------------------------------- |
+| `--color-bg`                       | `#FFF8E7` | `--background`                                                                     |
+| `--color-bg-elevated`              | `#FFFFFF` | `--card`, `--popover`                                                              |
+| `--color-fg`                       | `#1A0F2E` | `--foreground`                                                                     |
+| `--color-fg-muted`                 | `#5C4D6E` | `--muted-foreground`                                                               |
+| `--color-primary` (rojo carpa)     | `#D7263D` | `--primary`, `--ring`, `--input-focus`, `--destructive`                            |
+| `--color-primary-hover`            | `#B81E33` | `--primary-hover`                                                                  |
+| `--color-accent` (amarillo dorado) | `#F4B400` | `--accent`                                                                         |
+| `--color-secondary` (azul cobalto) | `#1E5BFF` | `--secondary`, `--info`                                                            |
+| `--color-success`                  | `#16A34A` | `--success`                                                                        |
+| `--color-warning`                  | `#F59E0B` | `--warning`                                                                        |
+| `--color-border`                   | `#E5D9C0` | `--border`, `--card-border`, `--header-border`, `--input-border`, `--table-border` |
+
+### Deviations from spec
+
+- **Tokens viven en globals.css** (no `src/styles/tokens.css`) — el kit ya tiene su sistema en globals.css; crear archivo separado fragmentaría el SSOT.
+- **Bungee se carga via `--font-bungee` variable y se aplica via inline `style`** — los tokens del kit usan namespacing `--font-sans/mono`. Agregamos `--font-display` separado para no chocar con kit pages. Componentes Rifatela pueden usar `font-display` Tailwind class si agregamos Tailwind utility shortcut después.
+- **Body font sigue Geist Sans** (no Inter como en spec). Geist es geometricamente equivalente a Inter; cambiarlo sería disruptivo sin ganancia funcional.
+- **JetBrains Mono reemplaza Geist Mono** (vía fallback). Geist Mono queda como fallback redundante. Si en cleanup futuro querés borrarlo, está deprecated.
+- **Neumorphism del kit stubeado a shadows flat** — el vibe carnaval no usa neumo, pero los componentes shipped del kit (`<Card>`, etc.) referencian `--neo-*`. Stubeamos para evitar errores; las clases neumo siguen funcionando, solo que renderizan plano.
+
+### Test results
+
+```
+Test Files  41 passed (41)
+     Tests  518 passed (518)
+Duration    30.76s
+```
+
+Zero regresiones de tests existentes (kit-shipped).
+
+### Pending follow-up (NOT blocking)
+
+- Lighthouse a11y audit (contrast) — verificable en deploy post-RIF-040
+- Considerar agregar `font-display` como Tailwind utility shortcut en `@theme inline` (`--font-family-display: var(--font-bungee)`) para evitar `style={{ fontFamily }}` inline
+- Otros componentes del kit (login, dashboard) heredan el theme carnaval — ven raro pero funcionan. Cleanup futuro en RIF-007

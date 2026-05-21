@@ -17,13 +17,18 @@
 
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-amber-50 px-6 text-center text-purple-950">
+    <main className="bg-background text-foreground flex min-h-screen flex-col items-center justify-center px-6 text-center">
       <div className="space-y-4">
-        <h1 className="text-6xl font-bold tracking-tight md:text-8xl">Rifatela</h1>
+        <h1
+          className="text-primary text-6xl tracking-tight md:text-8xl"
+          style={{ fontFamily: 'var(--font-display)' }}
+        >
+          Rifatela
+        </h1>
         <p className="text-xl md:text-2xl">Rifas sin lápiz ni cuaderno.</p>
       </div>
 
-      <p className="mt-16 text-sm text-purple-700">En desarrollo · próximamente</p>
+      <p className="text-muted-foreground mt-16 text-sm">En desarrollo · próximamente</p>
     </main>
   );
 }
