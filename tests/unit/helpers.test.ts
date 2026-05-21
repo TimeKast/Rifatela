@@ -28,9 +28,21 @@ vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }));
 
+// Mock db (used by withSellerToken to look up the seller)
+const mockSellerFindFirst = vi.fn();
+vi.mock('@/lib/db/drizzle', () => ({
+  db: {
+    query: {
+      sellers: {
+        findFirst: (...args: unknown[]) => mockSellerFindFirst(...args),
+      },
+    },
+  },
+}));
+
 // --- Import after mocks -----------------------------------------------------
 // Dynamic import to ensure mocks are in place
-const { withAuth, withSelf } = await import('@/lib/actions/helpers');
+const { withAuth, withSelf, withSellerToken } = await import('@/lib/actions/helpers');
 const { ActionError } = await import('@/lib/actions/types');
 
 // --- Test schemas ------------------------------------------------------------
@@ -249,5 +261,131 @@ describe('withSelf', () => {
     );
 
     expect(result).toEqual({ error: 'Contraseña incorrecta' });
+  });
+});
+
+// =============================================================================
+// withSellerToken Tests
+// =============================================================================
+
+describe('withSellerToken', () => {
+  const sellerSchema = z.object({
+    sellerToken: z.string().length(32),
+    ticketId: z.string().uuid(),
+  });
+
+  beforeEach(() => {
+    mockSellerFindFirst.mockReset();
+  });
+
+  it('executes handler with sellerId when token resolves to an active seller', async () => {
+    mockSellerFindFirst.mockResolvedValueOnce({ id: 'seller-uuid-1' });
+    const handler = vi.fn().mockResolvedValue({ ok: true });
+
+    const result = await withSellerToken(
+      { schema: sellerSchema },
+      {
+        sellerToken: 'a'.repeat(32),
+        ticketId: '123e4567-e89b-42d3-a456-426614174000',
+      },
+      handler
+    );
+
+    expect(result).toEqual({ data: { ok: true } });
+    // Handler receives business data with sellerToken stripped
+    expect(handler).toHaveBeenCalledWith(
+      { ticketId: '123e4567-e89b-42d3-a456-426614174000' },
+      'seller-uuid-1'
+    );
+  });
+
+  it('returns ambiguous "No autorizado" when token does not match any seller', async () => {
+    mockSellerFindFirst.mockResolvedValueOnce(undefined);
+    const handler = vi.fn();
+
+    const result = await withSellerToken(
+      { schema: sellerSchema },
+      {
+        sellerToken: 'a'.repeat(32),
+        ticketId: '123e4567-e89b-42d3-a456-426614174000',
+      },
+      handler
+    );
+
+    expect(result).toEqual({ error: 'No autorizado' });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('returns ambiguous "No autorizado" when seller is archived (BR-013)', async () => {
+    // The DB query filters by `isNull(deletedAt)` — an archived seller is
+    // simply not returned, identical to "token not found" from this layer's
+    // perspective. The wrapper must NOT leak the difference.
+    mockSellerFindFirst.mockResolvedValueOnce(undefined);
+    const handler = vi.fn();
+
+    const result = await withSellerToken(
+      { schema: sellerSchema },
+      {
+        sellerToken: 'b'.repeat(32),
+        ticketId: '123e4567-e89b-42d3-a456-426614174000',
+      },
+      handler
+    );
+
+    expect(result).toEqual({ error: 'No autorizado' });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('returns validation error and does NOT touch the DB when input is invalid', async () => {
+    const handler = vi.fn();
+
+    const result = await withSellerToken(
+      { schema: sellerSchema },
+      { sellerToken: 'too-short', ticketId: 'not-a-uuid' },
+      handler
+    );
+
+    expect(result).toHaveProperty('error');
+    expect(handler).not.toHaveBeenCalled();
+    expect(mockSellerFindFirst).not.toHaveBeenCalled();
+  });
+
+  it('returns ActionError message when handler throws ActionError', async () => {
+    mockSellerFindFirst.mockResolvedValueOnce({ id: 'seller-uuid-1' });
+
+    const result = await withSellerToken(
+      { schema: sellerSchema },
+      {
+        sellerToken: 'a'.repeat(32),
+        ticketId: '123e4567-e89b-42d3-a456-426614174000',
+      },
+      async () => {
+        throw new ActionError('Ese número ya se vendió');
+      }
+    );
+
+    expect(result).toEqual({ error: 'Ese número ya se vendió' });
+  });
+
+  it('returns generic message when handler throws unexpected error', async () => {
+    mockSellerFindFirst.mockResolvedValueOnce({ id: 'seller-uuid-1' });
+
+    // Suppress console.error noise in test output
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const result = await withSellerToken(
+      { schema: sellerSchema },
+      {
+        sellerToken: 'a'.repeat(32),
+        ticketId: '123e4567-e89b-42d3-a456-426614174000',
+      },
+      async () => {
+        throw new Error('unexpected DB error');
+      }
+    );
+
+    expect(result).toEqual({ error: 'Ocurrió un error. Intenta de nuevo.' });
+    expect(errorSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
   });
 });

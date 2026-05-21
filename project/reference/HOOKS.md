@@ -40,6 +40,7 @@
 |------|------|--------|------|
 | `withAuth` | async function | `@/lib/actions/helpers` | `src\lib\actions\helpers.ts` |
 | `withSelf` | async function | `@/lib/actions/helpers` | `src\lib\actions\helpers.ts` |
+| `withSellerToken` | async function | `@/lib/actions/helpers` | `src\lib\actions\helpers.ts` |
 
 ---
 
@@ -158,7 +159,7 @@
 | Category | Count |
 |----------|-------|
 | Hooks | 15 |
-| Action Helpers | 2 |
+| Action Helpers | 3 |
 | PWA Hooks | 8 |
 | Utility Helpers | 7 |
 | DB Helpers | 4 |
@@ -166,7 +167,7 @@
 | Form Kit | 9 |
 | Common Components | 7 |
 | UI Wrappers (kit-shipped) | 1 |
-| **Total** | **64** |
+| **Total** | **65** |
 
 ---
 
