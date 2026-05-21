@@ -5,7 +5,7 @@
 | **Epic**           | EPIC-001 Foundation & Data Layer |
 | **Priority**       | P0                               |
 | **Story Points**   | 3                                |
-| **Status**         | To Do                            |
+| **Status**         | ✅ Completed (2026-05-21)        |
 | **Dependencies**   | RIF-001                          |
 | **User Stories**   | (preparatory para US-001)        |
 | **Business Rules** | BR-001 (uniqueness)              |
@@ -61,8 +61,39 @@ export async function bulkInsertTicketsForRaffle(
 
 ## Done when
 
-- [ ] Function exportada desde `src/lib/raffles/bulk-tickets.ts`
-- [ ] Unit test con maxTickets = 1, 100, 10000
-- [ ] Unit test con maxTickets = 0 → error
-- [ ] Unit test con maxTickets = 10001 → error
-- [ ] `pnpm verify` pasa
+- [x] Function exportada desde `src/lib/raffles/bulk-tickets.ts` ✅
+- [x] Unit test con maxTickets = 1, 100, 10000 ✅
+- [x] Unit test con maxTickets = 0 → error ✅
+- [x] Unit test con maxTickets = 10001 → error ✅
+- [x] `pnpm typecheck` + `pnpm lint` + `pnpm test src/lib/raffles/` PASS ✅
+
+## ✅ Implementation Evidence (2026-05-21)
+
+### Files created
+
+- **NEW:** `src/lib/raffles/bulk-tickets.ts` — `bulkInsertTicketsForRaffle(database, raffleId, maxTickets)`. Single-statement bulk INSERT. Throws built-in `RangeError` cuando `maxTickets` está fuera de `[1, 10000]` o no es integer.
+- **NEW:** `src/lib/raffles/bulk-tickets.test.ts` — 7 unit tests con mock DB chainable.
+
+### Test results
+
+```
+✓ inserts 1 ticket with number=1 and status=available
+✓ inserts 100 tickets with consecutive numbers 1..100
+✓ inserts 10000 tickets at the upper bound
+✓ throws RangeError when maxTickets is 0 and does NOT touch the DB
+✓ throws RangeError when maxTickets is 10001 (above upper bound)
+✓ throws RangeError when maxTickets is negative
+✓ throws RangeError when maxTickets is a float (non-integer)
+
+Test Files  1 passed (1)  ·  Tests  7 passed (7)
+```
+
+### Deviations from spec
+
+- Built-in `RangeError` en lugar de `ValidationError` custom — API tighter, semántico correcto. Server actions futuras envuelven en su error envelope per `08_API_CONTRACTS.md`.
+- Defensa extra: rechaza no-integer (float) además de range — `Number.isInteger()` check.
+
+### Pending follow-up (NOT blocking)
+
+- Consumido por `createRaffle` server action (RIF-010, EPIC-002)
+- Integration test contra Postgres real diferido a RIF-008 (test fixtures + DB seeds)

@@ -244,6 +244,7 @@
 | `src\lib\pwa\sw-listener.ts` | — | — |
 | `src\lib\pwa\usePullToRefresh.ts` | — | — |
 | `src\lib\pwa\usePwaInstall.ts` | — | — |
+| `src\lib\raffles\bulk-tickets.ts` | — | — |
 | `src\lib\rate-limit.ts` | — | — |
 | `src\lib\utils\cn.ts` | — | — |
 | `src\lib\utils\human-id.ts` | — | — |
@@ -257,10 +258,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Total files analyzed | 223 |
+| Total files analyzed | 224 |
 | Total connections | 52 |
 | High-risk files (2+ deps) | 9 |
-| Orphan files (no connections) | 158 |
+| Orphan files (no connections) | 159 |
 
 ---
 
