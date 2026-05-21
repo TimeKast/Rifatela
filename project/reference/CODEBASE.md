@@ -184,6 +184,7 @@
 | `src\lib\cache.ts` | — | — |
 | `src\lib\contexts\BreadcrumbContext.tsx` | — | — |
 | `src\lib\contexts\UnsavedChangesContext.tsx` | — | — |
+| `src\lib\crypto\seed.ts` | — | — |
 | `src\lib\db\drizzle.ts` | `src\lib\db\schema\index.ts` | `src\lib\db\seed.ts`, `src\lib\db\seeds\admin.ts` |
 | `src\lib\db\helpers\audit-fields.ts` | — | — |
 | `src\lib\db\helpers\can-hard-delete.ts` | — | — |
@@ -258,10 +259,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Total files analyzed | 224 |
+| Total files analyzed | 225 |
 | Total connections | 52 |
 | High-risk files (2+ deps) | 9 |
-| Orphan files (no connections) | 159 |
+| Orphan files (no connections) | 160 |
 
 ---
 

@@ -33,6 +33,7 @@
 | drizzle-orm | 0.45.2 |
 | framer-motion | 12.36.0 |
 | lucide-react | 0.562.0 |
+| nanoid | 5.1.11 |
 | next | 16.2.4 |
 | next-auth | 5.0.0-beta.30 |
 | next-themes | 0.4.6 |
@@ -146,11 +147,11 @@
 
 | Metric | Value |
 |--------|-------|
-| Dependencies | 38 |
+| Dependencies | 39 |
 | Page Routes | 17 |
 | API Routes | 13 |
 | Components & Utils | 40 |
-| **Total items** | **108** |
+| **Total items** | **109** |
 
 ---
 
