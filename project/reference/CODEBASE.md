@@ -247,6 +247,7 @@
 | `src\lib\pwa\usePwaInstall.ts` | — | — |
 | `src\lib\raffles\bulk-tickets.ts` | — | — |
 | `src\lib\rate-limit.ts` | — | — |
+| `src\lib\storage\prize-upload.ts` | — | — |
 | `src\lib\utils\cn.ts` | — | — |
 | `src\lib\utils\human-id.ts` | — | — |
 | `src\lib\utils\platform.ts` | — | — |
@@ -259,10 +260,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Total files analyzed | 225 |
+| Total files analyzed | 226 |
 | Total connections | 52 |
 | High-risk files (2+ deps) | 9 |
-| Orphan files (no connections) | 160 |
+| Orphan files (no connections) | 161 |
 
 ---
 

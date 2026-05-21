@@ -27,6 +27,7 @@
 | @tanstack/react-table | 8.21.3 |
 | @upstash/ratelimit | 2.0.8 |
 | @upstash/redis | 1.37.0 |
+| @vercel/blob | 2.4.0 |
 | bcryptjs | 3.0.3 |
 | class-variance-authority | 0.7.1 |
 | clsx | 2.1.1 |
@@ -147,11 +148,11 @@
 
 | Metric | Value |
 |--------|-------|
-| Dependencies | 39 |
+| Dependencies | 40 |
 | Page Routes | 17 |
 | API Routes | 13 |
 | Components & Utils | 40 |
-| **Total items** | **109** |
+| **Total items** | **110** |
 
 ---
 
