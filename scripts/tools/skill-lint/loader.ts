@@ -19,7 +19,11 @@ export function loadSkills(repoRoot: string): Skill[] {
     const skillPath = join(absDir, entry.name, 'SKILL.md');
     if (!existsSync(skillPath)) continue;
 
-    const raw = readFileSync(skillPath, 'utf-8');
+    // Normalize CRLF → LF so YAML/body parsers can rely on `.` matching the
+    // full line content. Without this, Windows line endings leave a trailing
+    // `\r` that `.` does not match (JS regex line-terminator class), causing
+    // frontmatter keys to silently fail to parse.
+    const raw = readFileSync(skillPath, 'utf-8').replace(/\r\n/g, '\n');
     const { frontmatter, body } = splitFrontmatter(raw);
 
     skills.push({

@@ -42,6 +42,20 @@ const CATEGORIES = [
     kind: 'value',
   },
   {
+    label: 'PWA Hooks',
+    dir: 'src/lib/pwa',
+    importPrefix: '@/lib/pwa',
+    exclude: ['index.ts'],
+    kind: 'value',
+  },
+  {
+    label: 'Utility Helpers',
+    dir: 'src/lib/utils',
+    importPrefix: '@/lib/utils',
+    exclude: ['index.ts'],
+    kind: 'value',
+  },
+  {
     label: 'DB Helpers',
     dir: 'src/lib/db/helpers',
     importPrefix: '@/lib/db/helpers',

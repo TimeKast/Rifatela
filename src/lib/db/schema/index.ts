@@ -31,7 +31,11 @@ export * from './notifications';
 export * from './rate-limit';
 
 // =============================================================================
-// Add additional schemas below as needed
+// Rifatela domain (E-001 through E-006) — see project/planning/06_DATA_MODEL.md
 // =============================================================================
-// export * from './posts';
-// export * from './comments';
+export * from './raffles';
+export * from './prizes';
+export * from './sellers';
+export * from './buyers';
+export * from './tickets';
+export * from './admin-actions';
