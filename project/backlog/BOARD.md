@@ -6,9 +6,10 @@
 _No issues_
 
 
-## 📅 To Do (44)
+## 📅 To Do (45)
 - [RIF-001: Setup Drizzle schemas (6 entities)](epics\EPIC-001-foundation-data-layer\issues\RIF-001-setup-drizzle-schemas.md)
 - [RIF-002: Bulk insert N tickets on raffle creation](epics\EPIC-001-foundation-data-layer\issues\RIF-002-create-raffle-bulk-tickets.md)
+- [RIF-002a: Disable kit auth-redirect + Rifatela landing placeholder](epics\EPIC-001-foundation-data-layer\issues\RIF-002a-disable-kit-auth-landing.md)
 - [RIF-003: Crypto helpers (rng_seed, sha256, nanoid)](epics\EPIC-001-foundation-data-layer\issues\RIF-003-crypto-helpers.md)
 - [RIF-004: `withSellerToken` server action wrapper](epics\EPIC-001-foundation-data-layer\issues\RIF-004-withsellertoken-wrapper.md)
 - [RIF-005: Vercel Blob upload integration](epics\EPIC-001-foundation-data-layer\issues\RIF-005-vercel-blob-upload.md)
