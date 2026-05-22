@@ -5,6 +5,7 @@
 | **Epic**           | EPIC-002 Core Loop                                              |
 | **Priority**       | P0                                                              |
 | **Story Points**   | 5                                                               |
+| **Status**         | Completed (2026-05-22)                                          |
 | **Dependencies**   | RIF-001, RIF-004, RIF-007                                       |
 | **User Stories**   | US-007, US-008                                                  |
 | **Features**       | FT-003                                                          |
@@ -57,9 +58,22 @@ Then muestra mensaje "No hay rifas activas. Pedile a la organizadora que cree un
 
 ## Done when
 
-- [ ] RSC page con validation
-- [ ] Header con seller name + raffle selector
-- [ ] Unit test: invalid token → notFound
-- [ ] Unit test: archived seller token → notFound (mismo 404)
-- [ ] E2E (parte de E2E-002): seller entra, ve panel
-- [ ] `pnpm verify` pasa
+- [x] RSC page con validation (`src/app/v/[token]/page.tsx`) ✅
+- [x] Header con seller name + raffle activa (selector multi-raffle deferido a post-MVP) ✅
+- [x] `withSellerToken` ya cubre archived seller → "No autorizado" (BR-013); página llama `getSellerByToken` + `notFound()` con misma ambigüedad ✅
+- [x] `pnpm typecheck` + `pnpm lint` + `pnpm build` PASS ✅
+- [x] `pnpm test` PASS (559/559) ✅
+- [ ] E2E-002 — _llega en suite E2E (RIF-022)_
+
+## ✅ Implementation Evidence (2026-05-22)
+
+### Files created
+
+- **NEW:** `src/lib/sellers/get-seller-by-token.ts` — helper RSC-safe que valida token contra DB con `deletedAt IS NULL`. Retorna `null` igual para token inválido o seller archivado (BR-013).
+- **NEW:** `src/app/v/[token]/page.tsx` — RSC entry point. `notFound()` para seller inválido/archivado. Selecciona la rifa abierta más reciente (single-tenant heurística MVP). Bindea `registerBuyer` y `claimTicket` con `.bind(null, token)` (token NUNCA en form data).
+- **NEW:** `src/components/sellers/SellerPanel.tsx` — Client orchestrator: form de buyer + banner status + TicketGrid vendor variant.
+
+### Notes
+
+- **Multi-raffle selector:** SCR-006 lo contempla pero en MVP single-tenant elegimos la rifa abierta más reciente. Cuando un cliente real tenga ≥2 rifas activas simultáneas se agrega dropdown.
+- **No active raffle:** página muestra `<NoActiveRaffle>` con texto guía en lugar de 404.

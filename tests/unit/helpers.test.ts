@@ -29,14 +29,18 @@ vi.mock('next/cache', () => ({
 }));
 
 // Mock db (used by withSellerToken to look up the seller)
-const mockSellerFindFirst = vi.fn();
+// withSellerToken now uses .select().from().where().limit() chain — stub the
+// terminal call only.
+const mockSellerLookup = vi.fn<() => Promise<{ id: string }[]>>();
 vi.mock('@/lib/db/drizzle', () => ({
   db: {
-    query: {
-      sellers: {
-        findFirst: (...args: unknown[]) => mockSellerFindFirst(...args),
-      },
-    },
+    select: () => ({
+      from: () => ({
+        where: () => ({
+          limit: () => mockSellerLookup(),
+        }),
+      }),
+    }),
   },
 }));
 
@@ -270,46 +274,42 @@ describe('withSelf', () => {
 // =============================================================================
 
 describe('withSellerToken', () => {
-  const sellerSchema = z.object({
-    sellerToken: z.string().length(32),
+  // Schema validates business fields ONLY — sellerToken is a separate
+  // parameter to withSellerToken (bound from the page via .bind()), not
+  // part of the action input.
+  const businessSchema = z.object({
     ticketId: z.string().uuid(),
   });
+  const VALID_TOKEN = 'a'.repeat(32);
+  const VALID_UUID = '123e4567-e89b-42d3-a456-426614174000';
 
   beforeEach(() => {
-    mockSellerFindFirst.mockReset();
+    mockSellerLookup.mockReset();
   });
 
   it('executes handler with sellerId when token resolves to an active seller', async () => {
-    mockSellerFindFirst.mockResolvedValueOnce({ id: 'seller-uuid-1' });
+    mockSellerLookup.mockResolvedValueOnce([{ id: 'seller-uuid-1' }]);
     const handler = vi.fn().mockResolvedValue({ ok: true });
 
     const result = await withSellerToken(
-      { schema: sellerSchema },
-      {
-        sellerToken: 'a'.repeat(32),
-        ticketId: '123e4567-e89b-42d3-a456-426614174000',
-      },
+      { schema: businessSchema },
+      VALID_TOKEN,
+      { ticketId: VALID_UUID },
       handler
     );
 
     expect(result).toEqual({ data: { ok: true } });
-    // Handler receives business data with sellerToken stripped
-    expect(handler).toHaveBeenCalledWith(
-      { ticketId: '123e4567-e89b-42d3-a456-426614174000' },
-      'seller-uuid-1'
-    );
+    expect(handler).toHaveBeenCalledWith({ ticketId: VALID_UUID }, 'seller-uuid-1');
   });
 
   it('returns ambiguous "No autorizado" when token does not match any seller', async () => {
-    mockSellerFindFirst.mockResolvedValueOnce(undefined);
+    mockSellerLookup.mockResolvedValueOnce([]);
     const handler = vi.fn();
 
     const result = await withSellerToken(
-      { schema: sellerSchema },
-      {
-        sellerToken: 'a'.repeat(32),
-        ticketId: '123e4567-e89b-42d3-a456-426614174000',
-      },
+      { schema: businessSchema },
+      VALID_TOKEN,
+      { ticketId: VALID_UUID },
       handler
     );
 
@@ -318,18 +318,15 @@ describe('withSellerToken', () => {
   });
 
   it('returns ambiguous "No autorizado" when seller is archived (BR-013)', async () => {
-    // The DB query filters by `isNull(deletedAt)` — an archived seller is
-    // simply not returned, identical to "token not found" from this layer's
-    // perspective. The wrapper must NOT leak the difference.
-    mockSellerFindFirst.mockResolvedValueOnce(undefined);
+    // DB query filters by `isNull(deletedAt)` — archived sellers are
+    // simply not returned. Same response as "token not found" — no leak.
+    mockSellerLookup.mockResolvedValueOnce([]);
     const handler = vi.fn();
 
     const result = await withSellerToken(
-      { schema: sellerSchema },
-      {
-        sellerToken: 'b'.repeat(32),
-        ticketId: '123e4567-e89b-42d3-a456-426614174000',
-      },
+      { schema: businessSchema },
+      VALID_TOKEN,
+      { ticketId: VALID_UUID },
       handler
     );
 
@@ -337,29 +334,41 @@ describe('withSellerToken', () => {
     expect(handler).not.toHaveBeenCalled();
   });
 
-  it('returns validation error and does NOT touch the DB when input is invalid', async () => {
+  it('returns "No autorizado" fail-closed when sellerToken is empty', async () => {
+    const handler = vi.fn();
+    const result = await withSellerToken(
+      { schema: businessSchema },
+      '',
+      { ticketId: VALID_UUID },
+      handler
+    );
+    expect(result).toEqual({ error: 'No autorizado' });
+    expect(handler).not.toHaveBeenCalled();
+    expect(mockSellerLookup).not.toHaveBeenCalled();
+  });
+
+  it('returns validation error and does NOT execute handler when input is invalid', async () => {
+    mockSellerLookup.mockResolvedValueOnce([{ id: 'seller-uuid-1' }]);
     const handler = vi.fn();
 
     const result = await withSellerToken(
-      { schema: sellerSchema },
-      { sellerToken: 'too-short', ticketId: 'not-a-uuid' },
+      { schema: businessSchema },
+      VALID_TOKEN,
+      { ticketId: 'not-a-uuid' },
       handler
     );
 
     expect(result).toHaveProperty('error');
     expect(handler).not.toHaveBeenCalled();
-    expect(mockSellerFindFirst).not.toHaveBeenCalled();
   });
 
   it('returns ActionError message when handler throws ActionError', async () => {
-    mockSellerFindFirst.mockResolvedValueOnce({ id: 'seller-uuid-1' });
+    mockSellerLookup.mockResolvedValueOnce([{ id: 'seller-uuid-1' }]);
 
     const result = await withSellerToken(
-      { schema: sellerSchema },
-      {
-        sellerToken: 'a'.repeat(32),
-        ticketId: '123e4567-e89b-42d3-a456-426614174000',
-      },
+      { schema: businessSchema },
+      VALID_TOKEN,
+      { ticketId: VALID_UUID },
       async () => {
         throw new ActionError('Ese número ya se vendió');
       }
@@ -369,17 +378,13 @@ describe('withSellerToken', () => {
   });
 
   it('returns generic message when handler throws unexpected error', async () => {
-    mockSellerFindFirst.mockResolvedValueOnce({ id: 'seller-uuid-1' });
-
-    // Suppress console.error noise in test output
+    mockSellerLookup.mockResolvedValueOnce([{ id: 'seller-uuid-1' }]);
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const result = await withSellerToken(
-      { schema: sellerSchema },
-      {
-        sellerToken: 'a'.repeat(32),
-        ticketId: '123e4567-e89b-42d3-a456-426614174000',
-      },
+      { schema: businessSchema },
+      VALID_TOKEN,
+      { ticketId: VALID_UUID },
       async () => {
         throw new Error('unexpected DB error');
       }

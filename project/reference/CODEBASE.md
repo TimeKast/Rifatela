@@ -77,6 +77,7 @@
 | `src\app\serwist.ts` | — | `src\app\layout.tsx` |
 | `src\app\serwist\[path]\route.ts` | — | — |
 | `src\app\sw.ts` | — | — |
+| `src\app\v\[token]\page.tsx` | — | — |
 | `src\components\admin\InviteUserDialog.tsx` | — | `src\components\admin\UserTable.tsx` |
 | `src\components\admin\NewUserContent.tsx` | — | — |
 | `src\components\admin\UserActivityLog.tsx` | — | — |
@@ -133,11 +134,13 @@
 | `src\components\pwa\PwaUpdateToast.tsx` | — | — |
 | `src\components\pwa\index.ts` | — | — |
 | `src\components\raffles\CreateRaffleForm.tsx` | — | — |
+| `src\components\sellers\SellerPanel.tsx` | — | — |
 | `src\components\sellers\SellersManagement.tsx` | — | — |
 | `src\components\settings\AvatarUpload.tsx` | — | `src\components\settings\ProfileForm.tsx` |
 | `src\components\settings\ChangePasswordForm.tsx` | — | `src\components\settings\ProfileForm.tsx` |
 | `src\components\settings\ProfileForm.tsx` | `src\components\settings\ChangePasswordForm.tsx`, `src\components\settings\AvatarUpload.tsx` | — |
 | `src\components\shared\CopyToClipboardButton.tsx` | — | — |
+| `src\components\tickets\TicketGrid.tsx` | — | — |
 | `src\components\ui\alert-dialog.tsx` | — | — |
 | `src\components\ui\avatar.tsx` | — | — |
 | `src\components\ui\badge.tsx` | — | — |
@@ -178,6 +181,8 @@
 | `src\lib\actions\notifications.ts` | — | — |
 | `src\lib\actions\profile.ts` | — | — |
 | `src\lib\actions\raffles\create-raffle.ts` | — | — |
+| `src\lib\actions\sales\claim-ticket.ts` | — | — |
+| `src\lib\actions\sales\register-buyer.ts` | — | — |
 | `src\lib\actions\sellers\index.ts` | — | — |
 | `src\lib\actions\send-reset-email.ts` | — | — |
 | `src\lib\actions\types.ts` | — | — |
@@ -190,6 +195,7 @@
 | `src\lib\auth\permissions.ts` | — | — |
 | `src\lib\auth\super-admin.ts` | — | — |
 | `src\lib\auth\utils.ts` | — | `src\lib\auth\auth.ts`, `src\lib\auth\password-reset.ts` |
+| `src\lib\buyers\initials.ts` | — | — |
 | `src\lib\cache.ts` | — | — |
 | `src\lib\contexts\BreadcrumbContext.tsx` | — | — |
 | `src\lib\contexts\UnsavedChangesContext.tsx` | — | — |
@@ -256,8 +262,10 @@
 | `src\lib\pwa\usePwaInstall.ts` | — | — |
 | `src\lib\raffles\bulk-tickets.ts` | — | — |
 | `src\lib\raffles\get-raffle-detail.ts` | — | — |
+| `src\lib\raffles\get-raffle-tickets.ts` | — | — |
 | `src\lib\raffles\list-raffles.ts` | — | — |
 | `src\lib\rate-limit.ts` | — | — |
+| `src\lib\sellers\get-seller-by-token.ts` | — | — |
 | `src\lib\sellers\list-sellers.ts` | — | — |
 | `src\lib\storage\prize-upload.ts` | — | — |
 | `src\lib\utils\cn.ts` | — | — |
@@ -272,10 +280,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Total files analyzed | 238 |
+| Total files analyzed | 246 |
 | Total connections | 52 |
 | High-risk files (2+ deps) | 9 |
-| Orphan files (no connections) | 173 |
+| Orphan files (no connections) | 181 |
 
 ---
 

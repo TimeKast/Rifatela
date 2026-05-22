@@ -125,6 +125,7 @@
 | /settings/users/[id] | `src\app\(protected)\settings\users\[id]\page.tsx` |
 | /settings/users/nuevo | `src\app\(protected)\settings\users\nuevo\page.tsx` |
 | /terms | `src\app\(legal)\terms\page.tsx` |
+| /v/[token] | `src\app\v\[token]\page.tsx` |
 
 ---
 
@@ -153,10 +154,10 @@
 | Metric | Value |
 |--------|-------|
 | Dependencies | 40 |
-| Page Routes | 21 |
+| Page Routes | 22 |
 | API Routes | 13 |
 | Components & Utils | 40 |
-| **Total items** | **114** |
+| **Total items** | **115** |
 
 ---
 

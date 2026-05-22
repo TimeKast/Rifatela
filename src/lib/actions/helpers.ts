@@ -74,15 +74,14 @@ interface WithSelfNoSchemaOptions {
 /**
  * Options for withSellerToken.
  *
- * The schema MUST include a `sellerToken: z.string()` field (length 32 by
- * convention since seller tokens are `nanoid(32)` per ADR-003). The wrapper
- * extracts it from the parsed input to look up the calling seller, then
- * strips it before invoking the handler.
+ * `sellerToken` is passed as a separate argument (bound by the page via
+ * `.bind(null, token)`) — NOT included in the schema. Same pattern as
+ * `withAdminToken`. Schema validates only the business fields.
  */
-interface WithSellerTokenOptions<TInput extends { sellerToken: string }> {
-  /** Zod schema to validate input — must contain `sellerToken: z.string()` */
+interface WithSellerTokenOptions<TInput> {
+  /** Zod schema to validate the action input (sans `sellerToken`). */
   schema: ZodSchema<TInput>;
-  /** Path to revalidate after successful mutation */
+  /** Path to revalidate after successful mutation. */
   revalidate?: string;
 }
 
@@ -295,32 +294,36 @@ export async function withSelf<TInput, TOutput = void>(
  * @see project/planning/05_BUSINESS_RULES.md (BR-012 rotation, BR-013 archive)
  * @see project/planning/07_ARCHITECTURE.md (ADR-003 URL-secret auth)
  */
-export async function withSellerToken<TInput extends { sellerToken: string }, TOutput = void>(
+export async function withSellerToken<TInput, TOutput = void>(
   options: WithSellerTokenOptions<TInput>,
+  sellerToken: string,
   input: unknown,
-  handler: (parsed: Omit<TInput, 'sellerToken'>, sellerId: string) => Promise<TOutput>
+  handler: (parsed: TInput, sellerId: string) => Promise<TOutput>
 ): Promise<ActionResult<TOutput>> {
-  // 1. Schema validation (Zod parse). The schema must include `sellerToken`.
+  // 1. Resolve active seller by access_token. Archived sellers (deletedAt
+  //    non-null) are filtered out — they return the same ambiguous error
+  //    as invalid tokens (BR-013). Fail-closed on empty token.
+  if (!sellerToken) {
+    return { error: 'No autorizado' };
+  }
+  const [seller] = await db
+    .select({ id: sellers.id })
+    .from(sellers)
+    .where(and(eq(sellers.accessToken, sellerToken), isNull(sellers.deletedAt)))
+    .limit(1);
+  if (!seller) {
+    return { error: 'No autorizado' };
+  }
+
+  // 2. Schema validation (business fields only — sellerToken is separate).
   const parsed = parseInput(options.schema, input);
   if ('error' in parsed) {
     return { error: parsed.error };
   }
 
-  // 2. Resolve active seller by access_token. Archived sellers (deletedAt
-  //    non-null) are filtered out — they return the same ambiguous error
-  //    as invalid tokens (BR-013).
-  const { sellerToken, ...businessData } = parsed.data;
-  const seller = await db.query.sellers.findFirst({
-    where: and(eq(sellers.accessToken, sellerToken), isNull(sellers.deletedAt)),
-    columns: { id: true },
-  });
-  if (!seller) {
-    return { error: 'No autorizado' };
-  }
-
-  // 3. Execute handler with sellerToken stripped.
+  // 3. Execute handler.
   try {
-    const result = await handler(businessData as Omit<TInput, 'sellerToken'>, seller.id);
+    const result = await handler(parsed.data, seller.id);
 
     if (options.revalidate) {
       revalidatePath(options.revalidate);

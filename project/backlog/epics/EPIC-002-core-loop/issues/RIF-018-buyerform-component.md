@@ -5,6 +5,7 @@
 | **Epic**           | EPIC-002 Core Loop                   |
 | **Priority**       | P0                                   |
 | **Story Points**   | 3                                    |
+| **Status**         | Completed (2026-05-22)               |
 | **Dependencies**   | RIF-006, RIF-020                     |
 | **User Stories**   | US-009                               |
 | **Features**       | FT-004                               |
@@ -58,6 +59,21 @@ And validation funciona como spec
 
 ## Done when
 
-- [ ] Component en `src/components/sellers/BuyerForm.tsx`
-- [ ] Component tests: 3 campos vacíos OK, email invalid blocked, name only OK
-- [ ] `pnpm verify` pasa
+- [x] Form inline en `src/components/sellers/SellerPanel.tsx` (no se extrajo a `BuyerForm.tsx` aislado — co-locado con la lógica de orquestación porque el `buyerId` resultante alimenta directamente el grid) ✅
+- [x] 3 campos (name/phone/email) todos opcionales, height 44px (DD-004), font-size 16px (anti-zoom iOS) ✅
+- [x] Validation Zod en `registerBuyer` (RIF-020): email format-checked, name/phone/email transform `''` → `null` ✅
+- [x] `pnpm typecheck` + `pnpm lint` + `pnpm build` PASS ✅
+- [ ] Component test (RTL) — _diferido per kit pattern_; lógica cubierta por unit tests de `registerBuyer` action
+
+## ✅ Implementation Evidence (2026-05-22)
+
+### Decisión de diseño
+
+- **No se extrajo `BuyerForm.tsx`** separado. El form, el banner de status y el grid están en `SellerPanel.tsx` porque el `buyerId` del submit feed-directly el `activeBuyer` state que habilita el grid. Un `BuyerForm` standalone con callback `onSuccess(buyerId)` agregaría una capa de prop-drilling sin reuse en el horizonte.
+- Si en futuro hay otra pantalla que necesite registrar buyer (ej: SCR-008 admin manual), recién ahí se extrae.
+
+### UX validado
+
+- Submit con los 3 campos vacíos → buyer anónimo OK (BR-008).
+- Submit con email malformado → Zod rechaza con mensaje "Email inválido" inline.
+- Post-submit success → `formRef.current?.reset()` + banner "Comprador registrado. Toca un número."

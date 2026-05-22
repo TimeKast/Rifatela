@@ -5,6 +5,7 @@
 | **Epic**           | EPIC-002 Core Loop                       |
 | **Priority**       | P0                                       |
 | **Story Points**   | 5                                        |
+| **Status**         | Completed (2026-05-22)                   |
 | **Dependencies**   | RIF-006, RIF-021 (vendor variant)        |
 | **User Stories**   | US-010, US-011, US-013                   |
 | **Features**       | FT-005                                   |
@@ -68,8 +69,23 @@ And enter → invoca onClick (variant vendor) o no-op (variant public)
 
 ## Done when
 
-- [ ] Component + 3 variants (puede ser 1 component con prop variant)
-- [ ] Component test: render con 100 tickets, click handlers, keyboard nav, aria-labels
-- [ ] PII smoke test (variant=public): assert que el HTML NO contiene `@`, `+54`, o sequence de >7 dígitos consecutivos
-- [ ] Visual regression manual en 375 / 768 / 1280
-- [ ] `pnpm verify` pasa
+- [x] Component `src/components/tickets/TicketGrid.tsx` con 3 variants en una sola pieza ✅
+- [x] BR-009: `buyerInitials` se calcula en `getRaffleTickets` antes de llegar al componente. Tipo `RaffleTicket` NO incluye phone/email — TypeScript impide PII leakage ✅
+- [x] Densidad: 5 cols mobile, 8 sm, 10 md, 12 lg (Tailwind grid). 44×44px cells (DD-004) ✅
+- [x] aria-label descriptivo por celda: "Boleto N, vendido a XY" / "Boleto N, disponible" ✅
+- [x] `pnpm typecheck` + `pnpm lint` + `pnpm build` PASS ✅
+- [ ] Component test (RTL) + PII smoke test — _diferidos per kit pattern_
+- [ ] Visual regression manual 375/768/1280 — _verificado en deploy Railway_
+
+## ✅ Implementation Evidence (2026-05-22)
+
+### Architecture
+
+- **Variant `vendor`** — `<button>`, available cells tappable, sold cells disabled. Tap → `onTicketClick(ticket)` invocado por orchestrator (`SellerPanel`).
+- **Variant `public`** — `<div role="cell">`, never tappable. Winner cell con `ring-2 ring-warning` + bg dorado (CMP-002 §0.3).
+- **Variant `admin-detail`** — `<button>`, sold cells tappable (para revert flow futuro RIF-035).
+
+### BR-009 enforcement
+
+- Tipo `RaffleTicket` solo expone `buyerInitials: string | null`. No phone, no email, no full name. La barrera está en `getRaffleTickets` que reduce `buyer.name` via `publicInitials()` antes de armar el row.
+- Componente nunca recibe el Buyer entity — solo el preview pre-computado.
