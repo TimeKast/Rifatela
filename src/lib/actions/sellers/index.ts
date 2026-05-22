@@ -38,7 +38,9 @@ import { adminActions, sellers } from '@/lib/db/schema';
 // createSeller
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const CreateSellerSchema = z.object({
+// Zod schemas in this file are NOT exported — Next.js "use server" modules
+// can only export async functions. Schemas stay module-private.
+const CreateSellerSchema = z.object({
   name: z
     .string()
     .trim()
@@ -86,7 +88,7 @@ export async function createSeller(adminToken: string, _prevState: unknown, form
 // rotateSellerToken
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const RotateSellerSchema = z.object({
+const RotateSellerSchema = z.object({
   sellerId: z.string().uuid('ID de vendedor inválido'),
 });
 
@@ -152,7 +154,7 @@ export async function rotateSellerToken(
 // archiveSeller
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const ArchiveSellerSchema = z.object({
+const ArchiveSellerSchema = z.object({
   sellerId: z.string().uuid('ID de vendedor inválido'),
   reason: z
     .string()

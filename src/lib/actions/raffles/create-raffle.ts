@@ -58,7 +58,9 @@ const ALLOWED_PRIZE_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp'] as c
  * The optional `prizeImage` field accepts a File and validates MIME + size
  * up-front; the actual upload happens after the raffle id is generated.
  */
-export const CreateRaffleSchema = z.object({
+// Internal — not exported. Next.js "use server" files can only export
+// async functions; exporting this Zod object would break production builds.
+const CreateRaffleSchema = z.object({
   name: z
     .string()
     .trim()
