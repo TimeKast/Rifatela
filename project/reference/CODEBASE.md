@@ -137,6 +137,7 @@
 | `src\components\raffles\AssignedSellersManager.tsx` | — | — |
 | `src\components\raffles\Countdown.tsx` | — | — |
 | `src\components\raffles\CreateRaffleForm.tsx` | — | — |
+| `src\components\raffles\DrawButton.tsx` | — | — |
 | `src\components\raffles\SeedCommitDisplay.tsx` | — | — |
 | `src\components\sellers\SellerPanel.tsx` | — | — |
 | `src\components\sellers\SellersManagement.tsx` | — | — |
@@ -186,6 +187,7 @@
 | `src\lib\actions\profile.ts` | — | — |
 | `src\lib\actions\raffles\assign-seller.ts` | — | — |
 | `src\lib\actions\raffles\create-raffle.ts` | — | — |
+| `src\lib\actions\raffles\execute-draw.ts` | — | — |
 | `src\lib\actions\sales\claim-ticket.ts` | — | — |
 | `src\lib\actions\sales\register-buyer.ts` | — | — |
 | `src\lib\actions\sellers\index.ts` | — | — |
@@ -227,6 +229,7 @@
 | `src\lib\db\seeds\admin.ts` | `src\lib\db\drizzle.ts`, `src\lib\db\schema\index.ts` | — |
 | `src\lib\db\seeds\index.ts` | — | `src\lib\db\seed.ts` |
 | `src\lib\db\utils\pagination.ts` | — | — |
+| `src\lib\draw\seedToWinner.ts` | — | — |
 | `src\lib\email\index.ts` | `src\lib\email\resend.ts`, `src\lib\email\smtp.ts`, `src\lib\email\types.ts` | — |
 | `src\lib\email\logo-data.ts` | — | `src\lib\email\resend.ts`, `src\lib\email\smtp.ts` |
 | `src\lib\email\resend.ts` | `src\lib\email\types.ts`, `src\lib\email\logo-data.ts` | `src\lib\email\index.ts` |
@@ -289,10 +292,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Total files analyzed | 255 |
+| Total files analyzed | 258 |
 | Total connections | 54 |
 | High-risk files (2+ deps) | 9 |
-| Orphan files (no connections) | 189 |
+| Orphan files (no connections) | 192 |
 
 ---
 

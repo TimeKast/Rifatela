@@ -28,10 +28,12 @@ import Link from 'next/link';
 
 import { CopyToClipboardButton } from '@/components/shared/CopyToClipboardButton';
 import { AssignedSellersManager } from '@/components/raffles/AssignedSellersManager';
+import { DrawButton } from '@/components/raffles/DrawButton';
 import {
   assignSellerToRaffle,
   unassignSellerFromRaffle,
 } from '@/lib/actions/raffles/assign-seller';
+import { executeDraw } from '@/lib/actions/raffles/execute-draw';
 import { getAssignmentLists } from '@/lib/raffles/get-assigned-sellers';
 import {
   getRaffleDetail,
@@ -80,6 +82,7 @@ export default async function AdminRaffleDetailPage({ params }: PageProps) {
   // Bind admin token to assign/unassign actions so the token never reaches form data.
   const boundAssign = assignSellerToRaffle.bind(null, token);
   const boundUnassign = unassignSellerFromRaffle.bind(null, token);
+  const boundExecuteDraw = executeDraw.bind(null, token);
   const now = new Date();
   const soldCount = soldTickets.length;
   const totalTickets = raffle.maxTickets;
@@ -222,14 +225,10 @@ export default async function AdminRaffleDetailPage({ params }: PageProps) {
               🎯 ¡Hora del sorteo!
             </h2>
             <p className="mt-1 text-sm">
-              La fecha del sorteo llegó. Cuando estés listo, ejecutalo.
+              La fecha del sorteo llegó. Cuando estés listo, ejecutalo. Esto revela la semilla
+              pública y queda registrado para siempre (BR-005).
             </p>
-            <Link
-              href={`/admin/${token}/raffles/${raffle.id}/draw`}
-              className="bg-foreground text-background hover:bg-foreground/90 focus-ring mt-4 inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-semibold transition-colors"
-            >
-              Ejecutar sorteo
-            </Link>
+            <DrawButton raffleId={raffle.id} raffleName={raffle.name} action={boundExecuteDraw} />
           </section>
         ) : null}
 

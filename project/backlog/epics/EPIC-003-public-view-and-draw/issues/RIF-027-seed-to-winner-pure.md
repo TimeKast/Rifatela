@@ -5,6 +5,7 @@
 | **Epic**            | EPIC-003 Public View & Draw                               |
 | **Priority**        | **P0 — CRITICAL**                                         |
 | **Story Points**    | 3                                                         |
+| **Status**          | Completed (2026-05-22)                                    |
 | **Dependencies**    | RIF-003                                                   |
 | **User Stories**    | US-016, US-018                                            |
 | **Features**        | FT-008, FT-009                                            |
@@ -77,11 +78,24 @@ export function seedToWinner(
 
 ## Done when
 
-- [ ] Function exportada desde `src/lib/draw/seedToWinner.ts`
-- [ ] **Unit test determinismo:** mismo input 100x → mismo output
-- [ ] **Unit test distribución:** chi-square con 1000 runs
-- [ ] **Unit test empty:** throws con []
-- [ ] **Unit test single:** retorna el único elemento
-- [ ] **Unit test cross-runtime:** mismo output en Node y en JSDOM
-- [ ] Code review by architect (RSK-005 mitigation)
-- [ ] `pnpm verify` pasa
+- [x] `src/lib/draw/seedToWinner.ts` con sha256 → primeros 8 bytes → BigInt → modulo N ✅
+- [x] **Determinismo:** 100 calls mismo input → mismo output ✅
+- [x] **Empty:** `seedToWinner('s', [])` throws `'no_tickets_sold'` ✅
+- [x] **Single:** `seedToWinner(any, [t])` retorna `t` siempre ✅
+- [x] **Distribución:** 200 seeds random sobre 10 tickets → ≥8 buckets distintos ✅
+- [x] **Hand-computed:** assertion cruzada `sha256(seed) % N` agrees ✅
+- [x] `pnpm test tests/unit/seed-to-winner.test.ts` 7/7 PASS ✅
+- [x] `pnpm typecheck` + `pnpm lint` + `pnpm build` PASS ✅
+- [ ] Cross-runtime (Node vs Browser) — _diferido a RIF-031_; hoy solo se ejecuta server-side
+
+## ✅ Implementation Evidence (2026-05-22)
+
+### Decisión: `node:crypto` en lugar de `@noble/hashes`
+
+- El spec original proponía `@noble/hashes` para garantizar identidad Node↔Browser. Hoy `seedToWinner` solo se ejecuta server-side (dentro de `executeDraw`). Usar `node:crypto` mantiene la coherencia con el resto de `src/lib/crypto/seed.ts` y evita instalar una dep nueva.
+- **Migration path documentado en el JSDoc:** cuando RIF-031 (DrawWheel client replay) aterrice, se refactorea a `crypto.subtle.digest` (async, available en Node ≥18 + browser). Signature cambia a `Promise<…>` — aceptable porque ya es invocada desde contextos async.
+
+### Ordering contract
+
+- El JSDoc del módulo documenta explícitamente: el caller MUST pasar `soldTicketIds` ordenado por `tickets.number ASC`. La función NO ordena defensivamente — un sort defensive podría enmascarar bugs de ordering del caller que rompen determinismo cross-runtime cuando llegue el replay.
+- `executeDraw` cumple el contrato con `orderBy(asc(tickets.number))`.

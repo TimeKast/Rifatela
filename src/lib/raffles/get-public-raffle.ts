@@ -19,10 +19,10 @@
  * @see project/planning/06_DATA_MODEL.md (E-001, E-002, E-005)
  */
 
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 import { db } from '@/lib/db/drizzle';
-import { prizes, raffles, type Raffle } from '@/lib/db/schema';
+import { buyers, prizes, raffles, tickets, type Raffle } from '@/lib/db/schema';
 import { getRaffleTickets, type RaffleTicket } from '@/lib/raffles/get-raffle-tickets';
 
 export interface PublicPrize {
@@ -30,11 +30,20 @@ export interface PublicPrize {
   imageUrl: string | null;
 }
 
+export interface PublicWinner {
+  ticketId: string;
+  number: number;
+  /** Full name (BR-009 exception per DD-010). Null = anonymous. */
+  buyerName: string | null;
+}
+
 export interface PublicRaffle {
   raffle: Raffle;
   prize: PublicPrize | null;
   tickets: RaffleTicket[];
   soldCount: number;
+  /** Only populated when raffle.status === 'drawn'. */
+  winner: PublicWinner | null;
 }
 
 export async function getPublicRaffle(publicSlug: string): Promise<PublicRaffle | null> {
@@ -51,13 +60,38 @@ export async function getPublicRaffle(publicSlug: string): Promise<PublicRaffle 
     .where(eq(prizes.raffleId, raffle.id))
     .limit(1);
 
-  const tickets = await getRaffleTickets(raffle.id);
-  const soldCount = tickets.filter((t) => t.status === 'sold').length;
+  const ticketsForGrid = await getRaffleTickets(raffle.id);
+  const soldCount = ticketsForGrid.filter((t) => t.status === 'sold').length;
+
+  // Resolve winner details when drawn. BR-009 carves out an exception
+  // for the winner: their full name is shown publicly (DD-010). Anonymous
+  // buyers (no name) render as "Anónimo" at the UI layer.
+  let winner: PublicWinner | null = null;
+  if (raffle.status === 'drawn' && raffle.winnerTicketId) {
+    const [row] = await db
+      .select({
+        ticketId: tickets.id,
+        number: tickets.number,
+        buyerName: buyers.name,
+      })
+      .from(tickets)
+      .leftJoin(buyers, eq(tickets.buyerId, buyers.id))
+      .where(and(eq(tickets.id, raffle.winnerTicketId), eq(tickets.raffleId, raffle.id)))
+      .limit(1);
+    if (row) {
+      winner = {
+        ticketId: row.ticketId,
+        number: row.number,
+        buyerName: row.buyerName,
+      };
+    }
+  }
 
   return {
     raffle,
     prize: prize ?? null,
-    tickets,
+    tickets: ticketsForGrid,
     soldCount,
+    winner,
   };
 }

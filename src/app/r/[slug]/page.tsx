@@ -63,7 +63,7 @@ export default async function PublicRafflePage({ params }: PageProps) {
   const data = await getPublicRaffle(slug);
   if (!data) notFound();
 
-  const { raffle, prize, tickets, soldCount } = data;
+  const { raffle, prize, tickets, soldCount, winner } = data;
   const now = new Date();
 
   const isArchived = raffle.deletedAt !== null;
@@ -125,13 +125,20 @@ export default async function PublicRafflePage({ params }: PageProps) {
           </section>
         )}
 
-        {/* Drawn-state placeholder */}
-        {isDrawn && raffle.winnerTicketId && (
-          <section className="border-success/40 bg-success/10 text-foreground rounded-lg border px-4 py-4 text-center">
-            <p className="text-muted-foreground text-xs tracking-wide uppercase">Ganador</p>
-            <p className="text-foreground mt-1 text-2xl font-bold">
-              Boleto #{tickets.find((t) => t.id === raffle.winnerTicketId)?.number ?? '—'}
+        {/* Drawn-state winner card — BR-009 exception per DD-010: full name */}
+        {isDrawn && winner && (
+          <section className="border-success/40 bg-success/10 text-foreground rounded-lg border px-4 py-6 text-center">
+            <p className="text-2xl">🎉</p>
+            <p className="text-muted-foreground mt-1 text-xs tracking-wide uppercase">
+              Boleto ganador
             </p>
+            <p
+              className="text-foreground mt-1 text-4xl tracking-tight sm:text-5xl"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              #{winner.number}
+            </p>
+            <p className="text-foreground mt-2 text-base">{winner.buyerName ?? 'Anónimo'}</p>
           </section>
         )}
 
