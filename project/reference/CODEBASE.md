@@ -53,6 +53,7 @@
 | `src\app\(protected)\settings\users\nuevo\page.tsx` | — | — |
 | `src\app\(protected)\settings\users\page.tsx` | — | — |
 | `src\app\admin\[token]\page.tsx` | — | — |
+| `src\app\admin\[token]\raffles\[id]\page.tsx` | — | — |
 | `src\app\admin\[token]\raffles\new\page.tsx` | — | — |
 | `src\app\api\auth\[...nextauth]\route.ts` | — | — |
 | `src\app\api\auth\forgot-password\route.ts` | — | — |
@@ -134,6 +135,7 @@
 | `src\components\settings\AvatarUpload.tsx` | — | `src\components\settings\ProfileForm.tsx` |
 | `src\components\settings\ChangePasswordForm.tsx` | — | `src\components\settings\ProfileForm.tsx` |
 | `src\components\settings\ProfileForm.tsx` | `src\components\settings\ChangePasswordForm.tsx`, `src\components\settings\AvatarUpload.tsx` | — |
+| `src\components\shared\CopyToClipboardButton.tsx` | — | — |
 | `src\components\ui\alert-dialog.tsx` | — | — |
 | `src\components\ui\avatar.tsx` | — | — |
 | `src\components\ui\badge.tsx` | — | — |
@@ -250,6 +252,7 @@
 | `src\lib\pwa\usePullToRefresh.ts` | — | — |
 | `src\lib\pwa\usePwaInstall.ts` | — | — |
 | `src\lib\raffles\bulk-tickets.ts` | — | — |
+| `src\lib\raffles\get-raffle-detail.ts` | — | — |
 | `src\lib\raffles\list-raffles.ts` | — | — |
 | `src\lib\rate-limit.ts` | — | — |
 | `src\lib\storage\prize-upload.ts` | — | — |
@@ -265,10 +268,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Total files analyzed | 231 |
+| Total files analyzed | 234 |
 | Total connections | 52 |
 | High-risk files (2+ deps) | 9 |
-| Orphan files (no connections) | 166 |
+| Orphan files (no connections) | 169 |
 
 ---
 
