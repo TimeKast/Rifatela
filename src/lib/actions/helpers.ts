@@ -86,6 +86,20 @@ interface WithSellerTokenOptions<TInput extends { sellerToken: string }> {
   revalidate?: string;
 }
 
+/**
+ * Options for withAdminToken.
+ *
+ * Validates the URL-secret admin token (per ADR-003 — no real auth in MVP)
+ * against `process.env.ADMIN_ACCESS_TOKEN`. Reuses the same `ActionResult`
+ * shape as `withAuth` / `withSelf` for consistency.
+ */
+interface WithAdminTokenOptions<TInput> {
+  /** Zod schema to validate the action input (sans `adminToken`). */
+  schema: ZodSchema<TInput>;
+  /** Path to revalidate after successful mutation. Supports Next 15+ template syntax like `'/admin/[token]'`. */
+  revalidate?: string;
+}
+
 // =============================================================================
 // Helpers
 // =============================================================================
@@ -318,6 +332,73 @@ export async function withSellerToken<TInput extends { sellerToken: string }, TO
       return { error: error.message };
     }
     console.error('[withSellerToken]', error);
+    return { error: 'Ocurrió un error. Intenta de nuevo.' };
+  }
+}
+
+/**
+ * Server action wrapper for admin flows (URL-secret auth per ADR-003).
+ *
+ * The admin token is NOT in the action input — it's bound to the action at
+ * render time inside the `/admin/{token}/*` page (typically via
+ * `createRaffle.bind(null, token)`) so users cannot tamper with it via
+ * form data. The wrapper compares the bound token against
+ * `process.env.ADMIN_ACCESS_TOKEN` (fail-closed: missing env var or
+ * mismatch → `{ error: 'No autorizado' }`).
+ *
+ * Same `ActionResult` shape as `withAuth` / `withSelf` / `withSellerToken`.
+ *
+ * @example
+ * // Server action declaration
+ * export async function createRaffle(
+ *   adminToken: string,
+ *   _prevState: unknown,
+ *   formData: FormData,
+ * ) {
+ *   return withAdminToken(
+ *     { schema: CreateRaffleSchema, revalidate: '/admin/[token]' },
+ *     adminToken,
+ *     formData,
+ *     async (data) => { ... },
+ *   );
+ * }
+ *
+ * // Inside the RSC page
+ * <CreateRaffleForm action={createRaffle.bind(null, token)} />
+ *
+ * @see project/planning/07_ARCHITECTURE.md (ADR-003)
+ */
+export async function withAdminToken<TInput, TOutput = void>(
+  options: WithAdminTokenOptions<TInput>,
+  adminToken: string,
+  input: unknown,
+  handler: (parsed: TInput) => Promise<TOutput>
+): Promise<ActionResult<TOutput>> {
+  // 1. Validate the bound admin token. Fail-closed: any of (env var
+  //    unset, empty token, mismatch) -> 'No autorizado'.
+  const expected = process.env.ADMIN_ACCESS_TOKEN;
+  if (!expected || !adminToken || adminToken !== expected) {
+    return { error: 'No autorizado' };
+  }
+
+  // 2. Schema validation.
+  const parsed = parseInput(options.schema, input);
+  if ('error' in parsed) {
+    return { error: parsed.error };
+  }
+
+  // 3. Execute handler.
+  try {
+    const result = await handler(parsed.data);
+    if (options.revalidate) {
+      revalidatePath(options.revalidate);
+    }
+    return { data: result };
+  } catch (error) {
+    if (error instanceof ActionError) {
+      return { error: error.message };
+    }
+    console.error('[withAdminToken]', error);
     return { error: 'Ocurrió un error. Intenta de nuevo.' };
   }
 }

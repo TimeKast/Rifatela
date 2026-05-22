@@ -53,6 +53,7 @@
 | `src\app\(protected)\settings\users\nuevo\page.tsx` | — | — |
 | `src\app\(protected)\settings\users\page.tsx` | — | — |
 | `src\app\admin\[token]\page.tsx` | — | — |
+| `src\app\admin\[token]\raffles\new\page.tsx` | — | — |
 | `src\app\api\auth\[...nextauth]\route.ts` | — | — |
 | `src\app\api\auth\forgot-password\route.ts` | — | — |
 | `src\app\api\auth\register\route.ts` | — | — |
@@ -129,6 +130,7 @@
 | `src\components\pwa\PwaInstallToast.tsx` | — | — |
 | `src\components\pwa\PwaUpdateToast.tsx` | — | — |
 | `src\components\pwa\index.ts` | — | — |
+| `src\components\raffles\CreateRaffleForm.tsx` | — | — |
 | `src\components\settings\AvatarUpload.tsx` | — | `src\components\settings\ProfileForm.tsx` |
 | `src\components\settings\ChangePasswordForm.tsx` | — | `src\components\settings\ProfileForm.tsx` |
 | `src\components\settings\ProfileForm.tsx` | `src\components\settings\ChangePasswordForm.tsx`, `src\components\settings\AvatarUpload.tsx` | — |
@@ -171,6 +173,7 @@
 | `src\lib\actions\helpers.ts` | — | — |
 | `src\lib\actions\notifications.ts` | — | — |
 | `src\lib\actions\profile.ts` | — | — |
+| `src\lib\actions\raffles\create-raffle.ts` | — | — |
 | `src\lib\actions\send-reset-email.ts` | — | — |
 | `src\lib\actions\types.ts` | — | — |
 | `src\lib\api\client.ts` | — | — |
@@ -262,10 +265,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Total files analyzed | 228 |
+| Total files analyzed | 231 |
 | Total connections | 52 |
 | High-risk files (2+ deps) | 9 |
-| Orphan files (no connections) | 163 |
+| Orphan files (no connections) | 166 |
 
 ---
 

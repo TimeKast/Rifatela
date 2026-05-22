@@ -6,7 +6,7 @@
  * @see SK-001
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { z } from 'zod';
 
 // --- Mocks -------------------------------------------------------------------
@@ -42,7 +42,8 @@ vi.mock('@/lib/db/drizzle', () => ({
 
 // --- Import after mocks -----------------------------------------------------
 // Dynamic import to ensure mocks are in place
-const { withAuth, withSelf, withSellerToken } = await import('@/lib/actions/helpers');
+const { withAuth, withSelf, withSellerToken, withAdminToken } =
+  await import('@/lib/actions/helpers');
 const { ActionError } = await import('@/lib/actions/types');
 
 // --- Test schemas ------------------------------------------------------------
@@ -379,6 +380,126 @@ describe('withSellerToken', () => {
         sellerToken: 'a'.repeat(32),
         ticketId: '123e4567-e89b-42d3-a456-426614174000',
       },
+      async () => {
+        throw new Error('unexpected DB error');
+      }
+    );
+
+    expect(result).toEqual({ error: 'Ocurrió un error. Intenta de nuevo.' });
+    expect(errorSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+});
+
+// =============================================================================
+// withAdminToken Tests
+// =============================================================================
+
+describe('withAdminToken', () => {
+  const ADMIN_TOKEN = 'super-secret-admin-token-xyz1234';
+  const originalEnv = process.env.ADMIN_ACCESS_TOKEN;
+
+  const inputSchema = z.object({
+    name: z.string().min(1),
+    maxTickets: z.coerce.number().int().min(1),
+  });
+
+  beforeEach(() => {
+    process.env.ADMIN_ACCESS_TOKEN = ADMIN_TOKEN;
+  });
+
+  afterEach(() => {
+    process.env.ADMIN_ACCESS_TOKEN = originalEnv;
+  });
+
+  it('executes handler when adminToken matches env var', async () => {
+    const handler = vi.fn().mockResolvedValue({ raffleId: 'r-1' });
+
+    const result = await withAdminToken(
+      { schema: inputSchema },
+      ADMIN_TOKEN,
+      { name: 'Test', maxTickets: 100 },
+      handler
+    );
+
+    expect(result).toEqual({ data: { raffleId: 'r-1' } });
+    expect(handler).toHaveBeenCalledWith({ name: 'Test', maxTickets: 100 });
+  });
+
+  it('returns "No autorizado" when adminToken does not match env var', async () => {
+    const handler = vi.fn();
+
+    const result = await withAdminToken(
+      { schema: inputSchema },
+      'wrong-token',
+      { name: 'Test', maxTickets: 100 },
+      handler
+    );
+
+    expect(result).toEqual({ error: 'No autorizado' });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('returns "No autorizado" when ADMIN_ACCESS_TOKEN env var is not set (fail-closed)', async () => {
+    delete process.env.ADMIN_ACCESS_TOKEN;
+    const handler = vi.fn();
+
+    const result = await withAdminToken(
+      { schema: inputSchema },
+      ADMIN_TOKEN,
+      { name: 'Test', maxTickets: 100 },
+      handler
+    );
+
+    expect(result).toEqual({ error: 'No autorizado' });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('returns "No autorizado" when adminToken is empty', async () => {
+    const handler = vi.fn();
+    const result = await withAdminToken(
+      { schema: inputSchema },
+      '',
+      { name: 'Test', maxTickets: 100 },
+      handler
+    );
+    expect(result).toEqual({ error: 'No autorizado' });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('returns validation error and does NOT execute handler when input is invalid', async () => {
+    const handler = vi.fn();
+
+    const result = await withAdminToken(
+      { schema: inputSchema },
+      ADMIN_TOKEN,
+      { name: '', maxTickets: 0 },
+      handler
+    );
+
+    expect(result).toHaveProperty('error');
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('returns ActionError message when handler throws ActionError', async () => {
+    const result = await withAdminToken(
+      { schema: inputSchema },
+      ADMIN_TOKEN,
+      { name: 'Test', maxTickets: 100 },
+      async () => {
+        throw new ActionError('Ya existe una rifa con ese nombre');
+      }
+    );
+    expect(result).toEqual({ error: 'Ya existe una rifa con ese nombre' });
+  });
+
+  it('returns generic message when handler throws unexpected error', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const result = await withAdminToken(
+      { schema: inputSchema },
+      ADMIN_TOKEN,
+      { name: 'Test', maxTickets: 100 },
       async () => {
         throw new Error('unexpected DB error');
       }

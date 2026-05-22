@@ -107,6 +107,7 @@
 | / | `src\app\page.tsx` |
 | /accept-invite | `src\app\(auth)\accept-invite\page.tsx` |
 | /admin/[token] | `src\app\admin\[token]\page.tsx` |
+| /admin/[token]/raffles/new | `src\app\admin\[token]\raffles\new\page.tsx` |
 | /dashboard | `src\app\(protected)\dashboard\page.tsx` |
 | /error | `src\app\(auth)\error\page.tsx` |
 | /forgot-password | `src\app\(auth)\forgot-password\page.tsx` |
@@ -150,10 +151,10 @@
 | Metric | Value |
 |--------|-------|
 | Dependencies | 40 |
-| Page Routes | 18 |
+| Page Routes | 19 |
 | API Routes | 13 |
 | Components & Utils | 40 |
-| **Total items** | **111** |
+| **Total items** | **112** |
 
 ---
 

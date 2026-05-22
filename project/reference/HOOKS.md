@@ -38,6 +38,7 @@
 
 | Name | Kind | Import | File |
 |------|------|--------|------|
+| `withAdminToken` | async function | `@/lib/actions/helpers` | `src\lib\actions\helpers.ts` |
 | `withAuth` | async function | `@/lib/actions/helpers` | `src\lib\actions\helpers.ts` |
 | `withSelf` | async function | `@/lib/actions/helpers` | `src\lib\actions\helpers.ts` |
 | `withSellerToken` | async function | `@/lib/actions/helpers` | `src\lib\actions\helpers.ts` |
@@ -159,7 +160,7 @@
 | Category | Count |
 |----------|-------|
 | Hooks | 15 |
-| Action Helpers | 3 |
+| Action Helpers | 4 |
 | PWA Hooks | 8 |
 | Utility Helpers | 7 |
 | DB Helpers | 4 |
@@ -167,7 +168,7 @@
 | Form Kit | 9 |
 | Common Components | 7 |
 | UI Wrappers (kit-shipped) | 1 |
-| **Total** | **65** |
+| **Total** | **66** |
 
 ---
 
