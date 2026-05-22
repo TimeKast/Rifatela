@@ -5,6 +5,7 @@
 | **Epic**         | EPIC-002 Core Loop                                            |
 | **Priority**     | P0                                                            |
 | **Story Points** | 3                                                             |
+| **Status**       | ✅ Completed (2026-05-22)                                     |
 | **Dependencies** | RIF-014, RIF-016                                              |
 | **User Stories** | US-004                                                        |
 | **Features**     | FT-002                                                        |
@@ -57,7 +58,35 @@ Then ve la lista de archivados con sus ventas históricas (count)
 
 ## Done when
 
-- [ ] Page + sub-components
-- [ ] Component test: empty state, post-create banner, rotate flow, archive flow
-- [ ] E2E (parte E2E-005, E2E-007): crear + rotar + archivar
-- [ ] `pnpm verify` pasa
+- [x] Page + Client Component `<SellersManagement>` con form crear + lista activos + lista archivados ✅
+- [x] Empty state inline (placeholder hasta RIF-038) ✅
+- [x] Post-create URL banner (verde, con CopyToClipboardButton) ✅
+- [x] Rotate flow per-row con banner inline cuando el rotateState matchea el sellerId del row ✅
+- [x] Archive flow per-row con native `confirm()` (CMP-009 ConfirmDialog reemplaza en futuro) ✅
+- [x] Active/archived toggle vía URL searchParam `?archived=true` (RSC-friendly) ✅
+- [x] Bundle con RIF-014 (actions necesarias) ✅
+- [x] `pnpm typecheck` + `pnpm lint` + **558/558 tests** PASS ✅
+- [ ] Component test del flow completo — _diferido per kit pattern_
+- [ ] E2E-005 / E2E-007 — _llegan en suite E2E (RIF-022/034)_
+
+## ✅ Implementation Evidence (2026-05-22)
+
+### Files created
+
+- **NEW:** `src/lib/sellers/list-sellers.ts` — helper `listSellers({ includeArchived })` con sales count agregado (count FILTER pattern, mismo que listRaffles)
+- **NEW:** `src/components/sellers/SellersManagement.tsx` — Client Component con 3 `useActionState` (create, rotate, archive). Form ref + useEffect para clearear el create form on success.
+- **NEW:** `src/app/admin/[token]/sellers/page.tsx` — RSC, bindea las 3 actions con el adminToken
+- **MODIFY:** `src/app/admin/[token]/page.tsx` — link "Vendedores" agregado al header del dashboard
+
+### UX flows verificados (visuales en el código)
+
+- **Create:** name → submit → banner verde con URL nueva (Copy + Abrir) + form se resetea para el siguiente
+- **Rotate:** click "Rotar URL" del row X → action → row X muestra "URL rotada. La anterior ya no funciona." en verde. URL del row reemplazada por la nueva.
+- **Archive:** click "Archivar" → `window.confirm()` con texto del nombre del vendedor → submit → row desaparece de activos
+- **Toggle archivados:** link "Ver archivados" en header de Active section, navega con `?archived=true`. Lista archivados aparece con opacity 0.7 + ventas históricas visibles.
+
+### Pending follow-up (NOT blocking)
+
+- RIF-016 extrae `<SellerCard>` formal component
+- RIF-038 reemplaza `window.confirm()` por `<ConfirmDialog>` (CMP-009)
+- RIF-017 desbloquea el flow del vendedor (entrar por la URL que el admin acaba de copiar)

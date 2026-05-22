@@ -55,6 +55,7 @@
 | `src\app\admin\[token]\page.tsx` | — | — |
 | `src\app\admin\[token]\raffles\[id]\page.tsx` | — | — |
 | `src\app\admin\[token]\raffles\new\page.tsx` | — | — |
+| `src\app\admin\[token]\sellers\page.tsx` | — | — |
 | `src\app\api\auth\[...nextauth]\route.ts` | — | — |
 | `src\app\api\auth\forgot-password\route.ts` | — | — |
 | `src\app\api\auth\register\route.ts` | — | — |
@@ -132,6 +133,7 @@
 | `src\components\pwa\PwaUpdateToast.tsx` | — | — |
 | `src\components\pwa\index.ts` | — | — |
 | `src\components\raffles\CreateRaffleForm.tsx` | — | — |
+| `src\components\sellers\SellersManagement.tsx` | — | — |
 | `src\components\settings\AvatarUpload.tsx` | — | `src\components\settings\ProfileForm.tsx` |
 | `src\components\settings\ChangePasswordForm.tsx` | — | `src\components\settings\ProfileForm.tsx` |
 | `src\components\settings\ProfileForm.tsx` | `src\components\settings\ChangePasswordForm.tsx`, `src\components\settings\AvatarUpload.tsx` | — |
@@ -176,6 +178,7 @@
 | `src\lib\actions\notifications.ts` | — | — |
 | `src\lib\actions\profile.ts` | — | — |
 | `src\lib\actions\raffles\create-raffle.ts` | — | — |
+| `src\lib\actions\sellers\index.ts` | — | — |
 | `src\lib\actions\send-reset-email.ts` | — | — |
 | `src\lib\actions\types.ts` | — | — |
 | `src\lib\api\client.ts` | — | — |
@@ -255,6 +258,7 @@
 | `src\lib\raffles\get-raffle-detail.ts` | — | — |
 | `src\lib\raffles\list-raffles.ts` | — | — |
 | `src\lib\rate-limit.ts` | — | — |
+| `src\lib\sellers\list-sellers.ts` | — | — |
 | `src\lib\storage\prize-upload.ts` | — | — |
 | `src\lib\utils\cn.ts` | — | — |
 | `src\lib\utils\human-id.ts` | — | — |
@@ -268,10 +272,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Total files analyzed | 234 |
+| Total files analyzed | 238 |
 | Total connections | 52 |
 | High-risk files (2+ deps) | 9 |
-| Orphan files (no connections) | 169 |
+| Orphan files (no connections) | 173 |
 
 ---
 

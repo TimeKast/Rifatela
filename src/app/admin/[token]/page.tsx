@@ -63,12 +63,20 @@ export default async function AdminDashboardPage({ params, searchParams }: PageP
             <p className="text-muted-foreground text-sm">Panel del organizador</p>
           </div>
 
-          <Link
-            href={`/admin/${token}/raffles/new`}
-            className="bg-primary text-primary-foreground hover:bg-primary-hover focus-ring inline-flex h-11 items-center justify-center rounded-md px-4 text-sm font-semibold transition-colors"
-          >
-            + Nueva rifa
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/admin/${token}/sellers`}
+              className="text-foreground hover:text-primary focus-ring text-sm underline transition-colors"
+            >
+              Vendedores
+            </Link>
+            <Link
+              href={`/admin/${token}/raffles/new`}
+              className="bg-primary text-primary-foreground hover:bg-primary-hover focus-ring inline-flex h-11 items-center justify-center rounded-md px-4 text-sm font-semibold transition-colors"
+            >
+              + Nueva rifa
+            </Link>
+          </div>
         </header>
 
         <ArchiveToggle token={token} includeArchived={includeArchived} />
