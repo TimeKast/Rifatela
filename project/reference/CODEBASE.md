@@ -12,12 +12,12 @@
 | File | Dependents |
 |------|------------|
 | `src\lib\email\templates\layout.ts` | 9 |
-| `src\lib\db\schema\raffles.ts` | 3 |
+| `src\lib\db\schema\raffles.ts` | 4 |
+| `src\lib\db\schema\sellers.ts` | 3 |
 | `src\lib\db\schema\users.ts` | 3 |
 | `src\lib\email\types.ts` | 3 |
 | `src\lib\auth\utils.ts` | 2 |
 | `src\lib\db\schema\index.ts` | 2 |
-| `src\lib\db\schema\sellers.ts` | 2 |
 | `src\lib\db\drizzle.ts` | 2 |
 | `src\lib\email\logo-data.ts` | 2 |
 
@@ -133,6 +133,7 @@
 | `src\components\pwa\PwaInstallToast.tsx` | — | — |
 | `src\components\pwa\PwaUpdateToast.tsx` | — | — |
 | `src\components\pwa\index.ts` | — | — |
+| `src\components\raffles\AssignedSellersManager.tsx` | — | — |
 | `src\components\raffles\CreateRaffleForm.tsx` | — | — |
 | `src\components\sellers\SellerPanel.tsx` | — | — |
 | `src\components\sellers\SellersManagement.tsx` | — | — |
@@ -180,6 +181,7 @@
 | `src\lib\actions\helpers.ts` | — | — |
 | `src\lib\actions\notifications.ts` | — | — |
 | `src\lib\actions\profile.ts` | — | — |
+| `src\lib\actions\raffles\assign-seller.ts` | — | — |
 | `src\lib\actions\raffles\create-raffle.ts` | — | — |
 | `src\lib\actions\sales\claim-ticket.ts` | — | — |
 | `src\lib\actions\sales\register-buyer.ts` | — | — |
@@ -212,9 +214,10 @@
 | `src\lib\db\schema\invites.ts` | `src\lib\db\schema\users.ts` | — |
 | `src\lib\db\schema\notifications.ts` | `src\lib\db\schema\users.ts` | — |
 | `src\lib\db\schema\prizes.ts` | `src\lib\db\schema\raffles.ts` | — |
-| `src\lib\db\schema\raffles.ts` | — | `src\lib\db\schema\admin-actions.ts`, `src\lib\db\schema\prizes.ts`, `src\lib\db\schema\tickets.ts` |
+| `src\lib\db\schema\raffle-sellers.ts` | `src\lib\db\schema\raffles.ts`, `src\lib\db\schema\sellers.ts` | — |
+| `src\lib\db\schema\raffles.ts` | — | `src\lib\db\schema\admin-actions.ts`, `src\lib\db\schema\prizes.ts`, `src\lib\db\schema\raffle-sellers.ts`, `src\lib\db\schema\tickets.ts` |
 | `src\lib\db\schema\rate-limit.ts` | — | — |
-| `src\lib\db\schema\sellers.ts` | — | `src\lib\db\schema\admin-actions.ts`, `src\lib\db\schema\tickets.ts` |
+| `src\lib\db\schema\sellers.ts` | — | `src\lib\db\schema\admin-actions.ts`, `src\lib\db\schema\raffle-sellers.ts`, `src\lib\db\schema\tickets.ts` |
 | `src\lib\db\schema\tickets.ts` | `src\lib\db\schema\raffles.ts`, `src\lib\db\schema\buyers.ts`, `src\lib\db\schema\sellers.ts` | `src\lib\db\schema\admin-actions.ts` |
 | `src\lib\db\schema\users.ts` | — | `src\lib\db\schema\audit.ts`, `src\lib\db\schema\invites.ts`, `src\lib\db\schema\notifications.ts` |
 | `src\lib\db\seed.ts` | `src\lib\db\seeds\index.ts`, `src\lib\db\drizzle.ts` | — |
@@ -261,8 +264,10 @@
 | `src\lib\pwa\usePullToRefresh.ts` | — | — |
 | `src\lib\pwa\usePwaInstall.ts` | — | — |
 | `src\lib\raffles\bulk-tickets.ts` | — | — |
+| `src\lib\raffles\get-assigned-sellers.ts` | — | — |
 | `src\lib\raffles\get-raffle-detail.ts` | — | — |
 | `src\lib\raffles\get-raffle-tickets.ts` | — | — |
+| `src\lib\raffles\list-raffles-for-seller.ts` | — | — |
 | `src\lib\raffles\list-raffles.ts` | — | — |
 | `src\lib\rate-limit.ts` | — | — |
 | `src\lib\sellers\get-seller-by-token.ts` | — | — |
@@ -280,10 +285,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Total files analyzed | 246 |
-| Total connections | 52 |
+| Total files analyzed | 251 |
+| Total connections | 54 |
 | High-risk files (2+ deps) | 9 |
-| Orphan files (no connections) | 181 |
+| Orphan files (no connections) | 185 |
 
 ---
 

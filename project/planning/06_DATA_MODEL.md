@@ -10,14 +10,15 @@
 
 ## Resumen
 
-| ID    | Entity        | Purpose                                                           | Sensitive                          |
-| ----- | ------------- | ----------------------------------------------------------------- | ---------------------------------- |
-| E-001 | `Raffle`      | Unidad principal: 1 rifa = 1 sorteo                               | No (excepto `rng_seed` pre-sorteo) |
-| E-002 | `Prize`       | Premio asociado a una rifa (1:N para soporte multi-premio futuro) | No                                 |
-| E-003 | `Seller`      | Vendedor con access_token único                                   | Sí (`access_token`)                |
-| E-004 | `Buyer`       | Comprador con datos opcionales                                    | Sí (PII: name/phone/email)         |
-| E-005 | `Ticket`      | Boleto numerado dentro de una rifa                                | No (FK al buyer, que sí es PII)    |
-| E-006 | `AdminAction` | Log de acciones administrativas auditables                        | No                                 |
+| ID    | Entity         | Purpose                                                           | Sensitive                          |
+| ----- | -------------- | ----------------------------------------------------------------- | ---------------------------------- |
+| E-001 | `Raffle`       | Unidad principal: 1 rifa = 1 sorteo                               | No (excepto `rng_seed` pre-sorteo) |
+| E-002 | `Prize`        | Premio asociado a una rifa (1:N para soporte multi-premio futuro) | No                                 |
+| E-003 | `Seller`       | Vendedor con access_token único                                   | Sí (`access_token`)                |
+| E-004 | `Buyer`        | Comprador con datos opcionales                                    | Sí (PII: name/phone/email)         |
+| E-005 | `Ticket`       | Boleto numerado dentro de una rifa                                | No (FK al buyer, que sí es PII)    |
+| E-006 | `AdminAction`  | Log de acciones administrativas auditables                        | No                                 |
+| E-007 | `RaffleSeller` | Junction M:N — qué vendedores pueden operar en qué rifa (BR-016)  | No                                 |
 
 Total: **6 tablas**.
 
@@ -329,6 +330,57 @@ export const adminActions = pgTable('admin_actions', {
 
 - Al menos una de (`raffle_id`, `ticket_id`, `seller_id`) debe ser non-null (app invariant)
 - Index `(created_at DESC)` para "últimas acciones del admin" UI
+
+---
+
+## E-007 — RaffleSeller (junction M:N)
+
+Tabla puente entre `Raffle` y `Seller`. Su existencia es la condición habilitante para que un vendedor opere en una rifa (BR-016). Añadida post-MVP (2026-05-22) por refinamiento de producto.
+
+### Schema
+
+```ts
+// src/lib/db/schema/raffle-sellers.ts
+import { pgTable, primaryKey, timestamp, uuid, index } from 'drizzle-orm/pg-core';
+import { raffles } from './raffles';
+import { sellers } from './sellers';
+
+export const raffleSellers = pgTable(
+  'raffle_sellers',
+  {
+    raffleId: uuid('raffle_id')
+      .notNull()
+      .references(() => raffles.id, { onDelete: 'cascade' }),
+    sellerId: uuid('seller_id')
+      .notNull()
+      .references(() => sellers.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    createdBy: uuid('created_by'),
+  },
+  (t) => [
+    primaryKey({ columns: [t.raffleId, t.sellerId] }),
+    index('raffle_sellers_seller_idx').on(t.sellerId),
+  ]
+);
+```
+
+### Constraints / indexes
+
+- **PK compuesta** `(raffle_id, seller_id)` — un par único; assignment es idempotente con `ON CONFLICT DO NOTHING`
+- **Index** `(seller_id)` — query "qué rifas tiene Diego?" en el portal del vendedor
+- **ON DELETE CASCADE** en ambas FKs — borrado físico limpia
+- **NO `modified_at`/`modified_by`** — assignments son rows immutables. Editar no aplica; un cambio es DELETE+INSERT.
+
+### Lifecycle
+
+- **Create:** `assignSellerToRaffle(raffleId, sellerId)` server action (admin-only, withAdminToken). Valida que raffle y seller estén ambos activos (deletedAt IS NULL).
+- **Delete:** `unassignSellerFromRaffle(raffleId, sellerId)` server action. Idempotente.
+- **Soft-delete de raffle/seller:** NO toca asignaciones — preserva forensics histórico ("¿quién vendía en esta rifa cuando se cerró?").
+- **Hard-delete físico:** CASCADE limpia las filas.
+
+### Backfill (2026-05-22)
+
+Al introducir la regla se hizo `INSERT … SELECT raffles × sellers WHERE deleted_at IS NULL` para preservar el comportamiento previo (cualquier seller activo vende en cualquier rifa abierta). A partir de ese momento, cada rifa nueva nace sin asignaciones y el admin debe asignar explícitamente desde `/admin/{token}/raffles/{id}`.
 
 ---
 

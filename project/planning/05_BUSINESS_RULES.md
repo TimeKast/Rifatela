@@ -16,7 +16,8 @@
 | **Draw logic**                 | 3      | BR-004, BR-006, BR-007         |
 | **Privacy / public exposure**  | 2      | BR-008, BR-009                 |
 | **Admin operations**           | 3      | BR-011, BR-012, BR-013         |
-| **Total**                      | **15** | BR-001 → BR-015                |
+| **Seller scoping**             | 1      | BR-016                         |
+| **Total**                      | **16** | BR-001 → BR-016                |
 
 > **IDs son shared** con `00_DISCOVERY_BRIEF.md` §6. Si una BR se modifica acá, el brief debe actualizarse (cross-check obligatorio en doc 14).
 
@@ -160,6 +161,26 @@ UPDATE tickets
 - **Rationale:** los links compartidos por WhatsApp no se rompen meses después. La "papelera" del admin es metadata interna.
 - **Source:** Brief R4, BR-015
 - **Validated by:** US-015
+
+---
+
+## Seller scoping
+
+### BR-016 — Vendedores operan solo en rifas asignadas
+
+**Rule:** Un vendedor solo puede ver y vender en rifas a las que el admin lo asignó explícitamente vía la tabla `raffle_sellers` (M:N). Tokens válidos no implican acceso global.
+
+- **Trigger:** apertura del portal `/v/{token}` + cualquier invocación de `claimTicket`
+- **Mechanism:**
+  - `/v/{token}` lista `raffles WHERE status='open' AND deleted_at IS NULL AND id IN (SELECT raffle_id FROM raffle_sellers WHERE seller_id = ?)`
+  - `claimTicket` re-verifica defense-in-depth: si `(raffleId, sellerId) ∉ raffle_sellers` → error `'No estás asignado a esta rifa.'`
+  - Sellers archivados (deletedAt) conservan filas históricas pero no aparecen en UI de asignación ni pueden ser re-asignados.
+  - ON DELETE CASCADE en ambas FKs: borrado físico de raffle o seller limpia el join. Soft-delete NO toca asignaciones (preserva forensics).
+- **Idempotencia:** `assignSellerToRaffle` usa `INSERT … ON CONFLICT DO NOTHING`. `unassignSellerFromRaffle` es un DELETE no-op si la fila no existe.
+- **Backfill al introducir la regla (2026-05-22):** se asignaron todos los sellers activos a todas las rifas abiertas existentes para preservar el comportamiento previo. A partir de ahí, cada raffle nueva requiere asignación explícita desde `/admin/{token}/raffles/{id}`.
+- **Rationale:** el dueño de la rifa controla quién vende qué. Sin esto, cualquier seller con token válido podría vender en cualquier rifa abierta — el admin pierde el control de equipos por rifa.
+- **Source:** decisión de producto 2026-05-22 (post-MVP refinement)
+- **Validated by:** sin US específica todavía (test E2E pendiente)
 
 ---
 

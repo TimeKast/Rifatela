@@ -38,7 +38,7 @@ import { z } from 'zod';
 import { withSellerToken } from '@/lib/actions/helpers';
 import { ActionError } from '@/lib/actions/types';
 import { db } from '@/lib/db/drizzle';
-import { raffles, tickets } from '@/lib/db/schema';
+import { raffleSellers, raffles, tickets } from '@/lib/db/schema';
 
 const ClaimTicketSchema = z.object({
   ticketId: z.string().uuid('ID de ticket inválido'),
@@ -81,6 +81,31 @@ export async function claimTicket(sellerToken: string, _prevState: unknown, form
       if (probe.status === 'sold') {
         // Optimistic short-circuit — final auth is the atomic UPDATE.
         throw new ActionError('El boleto ya fue vendido.');
+      }
+
+      // 1.b Defense-in-depth: BR-016 — the seller must be assigned to the
+      //     raffle. The seller token already validated this seller is real
+      //     and active (via withSellerToken), but it doesn't know which
+      //     raffle they're authorized to operate on. Without this check,
+      //     a seller with a valid token could POST a ticketId belonging to
+      //     a raffle they were never assigned to.
+      const ticketRaffleId = await db
+        .select({ raffleId: tickets.raffleId })
+        .from(tickets)
+        .where(eq(tickets.id, data.ticketId))
+        .limit(1);
+      const raffleIdForTicket = ticketRaffleId[0]?.raffleId;
+      if (raffleIdForTicket) {
+        const [assignment] = await db
+          .select({ raffleId: raffleSellers.raffleId })
+          .from(raffleSellers)
+          .where(
+            and(eq(raffleSellers.raffleId, raffleIdForTicket), eq(raffleSellers.sellerId, sellerId))
+          )
+          .limit(1);
+        if (!assignment) {
+          throw new ActionError('No estás asignado a esta rifa.');
+        }
       }
 
       // 2. ATOMIC UPDATE — BR-002, ADR-001.

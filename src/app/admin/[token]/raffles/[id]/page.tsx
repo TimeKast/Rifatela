@@ -27,6 +27,12 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
 import { CopyToClipboardButton } from '@/components/shared/CopyToClipboardButton';
+import { AssignedSellersManager } from '@/components/raffles/AssignedSellersManager';
+import {
+  assignSellerToRaffle,
+  unassignSellerFromRaffle,
+} from '@/lib/actions/raffles/assign-seller';
+import { getAssignmentLists } from '@/lib/raffles/get-assigned-sellers';
 import {
   getRaffleDetail,
   type RaffleDetail,
@@ -69,6 +75,11 @@ export default async function AdminRaffleDetailPage({ params }: PageProps) {
   }
 
   const { raffle, prize, soldTickets, availableCount, adminActions } = detail;
+  const assignments = await getAssignmentLists(raffle.id);
+
+  // Bind admin token to assign/unassign actions so the token never reaches form data.
+  const boundAssign = assignSellerToRaffle.bind(null, token);
+  const boundUnassign = unassignSellerFromRaffle.bind(null, token);
   const now = new Date();
   const soldCount = soldTickets.length;
   const totalTickets = raffle.maxTickets;
@@ -194,6 +205,15 @@ export default async function AdminRaffleDetailPage({ params }: PageProps) {
             </Link>
           </div>
         </section>
+
+        {/* Assigned sellers — BR-016 raffle ↔ seller M:N */}
+        <AssignedSellersManager
+          raffleId={raffle.id}
+          assigned={assignments.assigned}
+          available={assignments.available}
+          assignAction={boundAssign}
+          unassignAction={boundUnassign}
+        />
 
         {/* Draw CTA — only when /open + draw date passed */}
         {raffle.status === 'open' && drawDateReached ? (
