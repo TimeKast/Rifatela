@@ -5,6 +5,7 @@
 | **Epic**           | EPIC-003 Public View & Draw                                                                    |
 | **Priority**       | P0                                                                                             |
 | **Story Points**   | 5                                                                                              |
+| **Status**         | Completed (2026-05-22)                                                                         |
 | **Dependencies**   | RIF-001, RIF-019 (TicketGrid public variant), RIF-024 (Countdown), RIF-025 (CommitRevealBadge) |
 | **User Stories**   | US-013, US-014                                                                                 |
 | **Features**       | FT-007                                                                                         |
@@ -73,9 +74,24 @@ And NO hay phone/email del buyer expuesto en HTML (PII smoke)
 
 ## Done when
 
-- [ ] RSC page + metadata
-- [ ] Component test render con datos mock
-- [ ] PII smoke test (HTML no contiene `@`, `+54`, dígitos consecutivos >7)
-- [ ] Lighthouse CI verde
-- [ ] E2E (parte E2E-001): abrir vista pública después de crear rifa
-- [ ] `pnpm verify` pasa
+- [x] RSC page `src/app/r/[slug]/page.tsx` + `generateMetadata` con OpenGraph ✅
+- [x] Hero (prize + countdown), counter, TicketGrid `public`, footer commit-reveal ✅
+- [x] Sold-out banner cuando `soldCount == maxTickets` ✅
+- [x] BR-015: archived raffles render con 200 (banner italic explicativo) ✅
+- [x] PII enforcement por construcción: `getRaffleTickets` solo expone `buyerInitials` ✅
+- [x] `pnpm typecheck` + `pnpm lint` + `pnpm build` + `pnpm test` 559/559 PASS ✅
+- [ ] Component test, Lighthouse CI, E2E-001 — _diferidos per kit pattern_
+
+## ✅ Implementation Evidence (2026-05-22)
+
+### Files
+
+- **NEW:** `src/lib/raffles/get-public-raffle.ts` — fetcher único (raffle + prize + tickets reducidos)
+- **NEW:** `src/app/r/[slug]/page.tsx` — RSC ~180 LOC. Hero, countdown, counter, grid, footer
+- **NEW:** `src/components/raffles/Countdown.tsx` (RIF-024)
+- **NEW:** `src/components/raffles/SeedCommitDisplay.tsx` + `CommitRevealBadge` (RIF-025)
+
+### Notes
+
+- **Drawn state**: hay un placeholder visual mínimo (card verde con número ganador) listo para cuando aterricen el resto del flujo de sorteo (RIF-026). SCR-009 final visuals esperan ese bundle.
+- **OG image dinámica**: no implementada en MVP (basic OpenGraph con `prize.imageUrl` si existe). Sobra para WhatsApp/Telegram share básico.

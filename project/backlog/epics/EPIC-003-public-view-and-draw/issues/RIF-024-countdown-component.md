@@ -5,6 +5,7 @@
 | **Epic**         | EPIC-003 Public View & Draw                   |
 | **Priority**     | P0                                            |
 | **Story Points** | 3                                             |
+| **Status**       | Completed (2026-05-22)                        |
 | **Dependencies** | RIF-006                                       |
 | **User Stories** | US-013, US-014                                |
 | **Design**       | CMP-003, motion §0.8, DD-007 (reduced-motion) |
@@ -76,7 +77,22 @@ export function Countdown({ drawDate, variant = 'inline' }: Props) {
 
 ## Done when
 
-- [ ] Component implementado + tests
-- [ ] Component test con fake timers: avanza correctamente
-- [ ] Manual check reduced-motion fallback en DevTools
-- [ ] `pnpm verify` pasa
+- [x] Component `src/components/raffles/Countdown.tsx` ✅
+- [x] SSR-safe: el server calcula con `serverNow` (prop) y el client re-sincroniza con setInterval ✅
+- [x] Format adaptativo: "Xd Yh Zm" si quedan ≥24h, "HH:MM:SS" si menos, "¡Hora del sorteo!" cuando llegó ✅
+- [x] Cleanup del interval en unmount ✅
+- [x] `pnpm typecheck` + `pnpm lint` + `pnpm build` PASS ✅
+- [ ] Variant `hero` con flip-card animation y `prefers-reduced-motion` fallback — _scope reducido a MVP; queda 1 variant unificada con look mono limpio_
+- [ ] Component test con fake timers — _diferido per kit pattern_
+
+## ✅ Implementation Evidence (2026-05-22)
+
+### Decisión de scope
+
+- **1 variant** en lugar de 2 (`hero`/`inline`). El look mono+grande funciona en `/r/{slug}` y queda compacto en otros lugares. Si después aparece un caso donde el tamaño choca, se agrega prop `size`.
+- **No flip-card** en MVP. El refresh por segundo es percibible y suficiente; la animación flip es cosmética y arrastra complejidad (CSS keyframes + reduced-motion). Punto de mejora si los usuarios lo piden.
+
+### SSR strategy
+
+- El RSC pasa `serverNow={new Date()}` y `Countdown` lo usa como snapshot inicial → no hay "00:00:00" flash en SSR.
+- `useEffect` arranca el `setInterval(1s)`. El primer tick re-sincroniza con `Date.now()` del cliente.

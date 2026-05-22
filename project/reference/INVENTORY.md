@@ -118,6 +118,7 @@
 | /offline | `src\app\offline\page.tsx` |
 | /privacy | `src\app\(legal)\privacy\page.tsx` |
 | /profile | `src\app\(protected)\profile\page.tsx` |
+| /r/[slug] | `src\app\r\[slug]\page.tsx` |
 | /register | `src\app\(auth)\register\page.tsx` |
 | /reset-password | `src\app\(auth)\reset-password\page.tsx` |
 | /settings/general | `src\app\(protected)\settings\general\page.tsx` |
@@ -154,10 +155,10 @@
 | Metric | Value |
 |--------|-------|
 | Dependencies | 40 |
-| Page Routes | 22 |
+| Page Routes | 23 |
 | API Routes | 13 |
 | Components & Utils | 40 |
-| **Total items** | **115** |
+| **Total items** | **116** |
 
 ---
 

@@ -74,6 +74,7 @@
 | `src\app\not-found.tsx` | — | — |
 | `src\app\offline\page.tsx` | — | — |
 | `src\app\page.tsx` | — | — |
+| `src\app\r\[slug]\page.tsx` | — | — |
 | `src\app\serwist.ts` | — | `src\app\layout.tsx` |
 | `src\app\serwist\[path]\route.ts` | — | — |
 | `src\app\sw.ts` | — | — |
@@ -134,7 +135,9 @@
 | `src\components\pwa\PwaUpdateToast.tsx` | — | — |
 | `src\components\pwa\index.ts` | — | — |
 | `src\components\raffles\AssignedSellersManager.tsx` | — | — |
+| `src\components\raffles\Countdown.tsx` | — | — |
 | `src\components\raffles\CreateRaffleForm.tsx` | — | — |
+| `src\components\raffles\SeedCommitDisplay.tsx` | — | — |
 | `src\components\sellers\SellerPanel.tsx` | — | — |
 | `src\components\sellers\SellersManagement.tsx` | — | — |
 | `src\components\settings\AvatarUpload.tsx` | — | `src\components\settings\ProfileForm.tsx` |
@@ -265,6 +268,7 @@
 | `src\lib\pwa\usePwaInstall.ts` | — | — |
 | `src\lib\raffles\bulk-tickets.ts` | — | — |
 | `src\lib\raffles\get-assigned-sellers.ts` | — | — |
+| `src\lib\raffles\get-public-raffle.ts` | — | — |
 | `src\lib\raffles\get-raffle-detail.ts` | — | — |
 | `src\lib\raffles\get-raffle-tickets.ts` | — | — |
 | `src\lib\raffles\list-raffles-for-seller.ts` | — | — |
@@ -285,10 +289,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Total files analyzed | 251 |
+| Total files analyzed | 255 |
 | Total connections | 54 |
 | High-risk files (2+ deps) | 9 |
-| Orphan files (no connections) | 185 |
+| Orphan files (no connections) | 189 |
 
 ---
 

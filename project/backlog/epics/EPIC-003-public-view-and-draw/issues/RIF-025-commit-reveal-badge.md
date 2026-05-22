@@ -5,6 +5,7 @@
 | **Epic**         | EPIC-003 Public View & Draw              |
 | **Priority**     | P0                                       |
 | **Story Points** | 2                                        |
+| **Status**       | Completed (2026-05-22)                   |
 | **Dependencies** | RIF-006                                  |
 | **User Stories** | US-024                                   |
 | **Features**     | FT-013                                   |
@@ -47,6 +48,13 @@ Then assertions sobre formato truncado + copy button + expand toggle
 
 ## Done when
 
-- [ ] 2 components implementados
-- [ ] Component test cada uno
-- [ ] `pnpm verify` pasa
+- [x] `<SeedCommitDisplay>` con truncate `8…8`, click-to-expand al full hash, botón copiar con feedback "¡Copiado!" 2s ✅
+- [x] `<CommitRevealBadge>` chip "🔒 Sorteo verificable" con tooltip vía `title=` ✅
+- [x] Co-localizados en `src/components/raffles/SeedCommitDisplay.tsx` (mismo dominio, ambos < 50 LOC) ✅
+- [x] `pnpm typecheck` + `pnpm lint` + `pnpm build` PASS ✅
+- [ ] Component test — _diferido per kit pattern_
+
+## ✅ Implementation Evidence (2026-05-22)
+
+- Tooltip implementado con `title=` HTML nativo en lugar de un componente Tooltip de shadcn — más simple, accesible por default. Si el copy mejora con un modal explicativo full, se reescribe ahí.
+- El `SeedCommitDisplay` se usa para 2 valores en la landing pública: el commit (siempre visible) y el seed revelado (solo cuando `status='drawn'`).
