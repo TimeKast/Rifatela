@@ -2,7 +2,7 @@
 
 > **Auto-generated** — Run `pnpm generate:inventory` to update
 > **Regla:** SIEMPRE consultar antes de crear algo nuevo.
-> **Last updated:** 2026-05-21
+> **Last updated:** 2026-05-22
 
 ---
 
@@ -106,6 +106,7 @@
 |-------|------|
 | / | `src\app\page.tsx` |
 | /accept-invite | `src\app\(auth)\accept-invite\page.tsx` |
+| /admin/[token] | `src\app\admin\[token]\page.tsx` |
 | /dashboard | `src\app\(protected)\dashboard\page.tsx` |
 | /error | `src\app\(auth)\error\page.tsx` |
 | /forgot-password | `src\app\(auth)\forgot-password\page.tsx` |
@@ -149,10 +150,10 @@
 | Metric | Value |
 |--------|-------|
 | Dependencies | 40 |
-| Page Routes | 17 |
+| Page Routes | 18 |
 | API Routes | 13 |
 | Components & Utils | 40 |
-| **Total items** | **110** |
+| **Total items** | **111** |
 
 ---
 

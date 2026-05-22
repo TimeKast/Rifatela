@@ -1,7 +1,7 @@
 # 🗺️ CODEBASE — Dependency Map
 
 > **Auto-generated** — Run `pnpm generate:codebase` to update
-> **Last updated:** 2026-05-21
+> **Last updated:** 2026-05-22
 
 ---
 
@@ -52,6 +52,7 @@
 | `src\app\(protected)\settings\users\loading.tsx` | — | — |
 | `src\app\(protected)\settings\users\nuevo\page.tsx` | — | — |
 | `src\app\(protected)\settings\users\page.tsx` | — | — |
+| `src\app\admin\[token]\page.tsx` | — | — |
 | `src\app\api\auth\[...nextauth]\route.ts` | — | — |
 | `src\app\api\auth\forgot-password\route.ts` | — | — |
 | `src\app\api\auth\register\route.ts` | — | — |
@@ -246,6 +247,7 @@
 | `src\lib\pwa\usePullToRefresh.ts` | — | — |
 | `src\lib\pwa\usePwaInstall.ts` | — | — |
 | `src\lib\raffles\bulk-tickets.ts` | — | — |
+| `src\lib\raffles\list-raffles.ts` | — | — |
 | `src\lib\rate-limit.ts` | — | — |
 | `src\lib\storage\prize-upload.ts` | — | — |
 | `src\lib\utils\cn.ts` | — | — |
@@ -260,10 +262,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Total files analyzed | 226 |
+| Total files analyzed | 228 |
 | Total connections | 52 |
 | High-risk files (2+ deps) | 9 |
-| Orphan files (no connections) | 161 |
+| Orphan files (no connections) | 163 |
 
 ---
 

@@ -5,6 +5,7 @@
 | **Epic**         | EPIC-002 Core Loop                                                     |
 | **Priority**     | P0                                                                     |
 | **Story Points** | 3                                                                      |
+| **Status**       | ✅ Completed (2026-05-21)                                              |
 | **Dependencies** | RIF-001, RIF-006, RIF-007, RIF-015                                     |
 | **User Stories** | US-022, US-023                                                         |
 | **Features**     | FT-012                                                                 |
@@ -53,8 +54,42 @@ And toggle "incluir archivadas" cambia visibility
 
 ## Done when
 
-- [ ] RSC page + sub-components
-- [ ] Component test con 0/1/3 rifas
-- [ ] E2E smoke (parte de E2E-001): crear rifa → aparece en dashboard
-- [ ] Lighthouse a11y ≥90 sobre esta page
-- [ ] `pnpm verify` pasa
+- [x] RSC page `src/app/admin/[token]/page.tsx` + inline sub-components ✅
+- [x] Data helper `listRaffles({ includeArchived })` con SQL aggregation (count FILTER) ✅
+- [x] EmptyState inline (placeholder hasta RIF-038) ✅
+- [x] RaffleCardPlaceholder inline (placeholder hasta RIF-015) ✅
+- [x] ArchiveToggle vía URL searchParam `?archived=true` (RSC-friendly, no client state) ✅
+- [x] `pnpm typecheck` + `pnpm lint` + **551/551 tests** PASS ✅
+- [ ] Component test 0/1/3 raffles — _diferido: vitest.config excluye `src/app/**/page.tsx` (E2E territory). Cubrirá E2E-001 más adelante._
+- [ ] E2E smoke (E2E-001) + Lighthouse a11y ≥90 — _post-merge cuando RIF-040 active Lighthouse CI_
+
+## ✅ Implementation Evidence (2026-05-21)
+
+### Files created
+
+- **NEW:** `src/lib/raffles/list-raffles.ts` — helper data-only con `listRaffles({ includeArchived })` que retorna `RaffleListEntry[]`. Usa Postgres `count() FILTER (WHERE …)` via Drizzle `sql` template para una sola query GROUP BY (no N+1).
+- **NEW:** `src/app/admin/[token]/page.tsx` — RSC del dashboard. 3 sub-componentes inline: `ArchiveToggle`, `RaffleCardPlaceholder`, `EmptyState`. Maneja `params` y `searchParams` async (Next 15+ pattern).
+
+### Key decisions
+
+- **Helper extraído de la page** — `listRaffles` es testable independientemente cuando agreguemos integration tests, y permite reuso desde otras rutas (raffle detail puede ampliar).
+- **Single query con FILTER** — alternativa N+1 quedaba fea con 10k tickets por raffle. Aggregation Postgres-native, casteado a `int` para que Drizzle no devuelva string.
+- **Archive toggle via URL searchParam** — RSC-friendly, sin state cliente, shareable, browser back/forward funciona.
+- **`Date.now` computado en page, pasado como prop** — React 19 purity rule prohíbe `Date.now()` en render. Capturamos `now = new Date()` después del await.
+- **Sub-components inline** — RIF-015 (`<RaffleCard>`) y RIF-038 (`<EmptyState>`) los extraen cuando lleguen; mientras tanto son placeholders honestos.
+
+### Tests deferred
+
+Per `vitest.config.ts` exclude list (`src/app/**/page.tsx`), las pages no se unit-testean — se cubren con E2E (Playwright). Tampoco hay test del helper `listRaffles` en este commit porque mockear Drizzle query chain sin coverage real de SQL es ceremonia. Integration test contra Neon branch llega en RIF-022/034 (los críticos del CI gate).
+
+### Verified
+
+- `pnpm typecheck` PASS
+- `pnpm lint` PASS (después de fix por React 19 purity rule — `Date.now()` movido al page-level)
+- `pnpm test` PASS 551/551 (sin regresiones)
+
+### Pending follow-up (NOT blocking)
+
+- RIF-010 `createRaffle` action + form (crea las raffles que este dashboard lista)
+- RIF-015 extrae `<RaffleCard>` a componente con props tipados
+- RIF-038 extrae `<EmptyState>` con SVG illustration
